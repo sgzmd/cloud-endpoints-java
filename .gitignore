@@ -1,2 +1,6 @@
 
 workspace/
+*.class
+*.bin
+*indexes-auto.xml
+*.api

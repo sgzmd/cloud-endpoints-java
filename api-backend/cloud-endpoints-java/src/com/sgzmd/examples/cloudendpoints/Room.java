@@ -1,7 +1,9 @@
 package com.sgzmd.examples.cloudendpoints;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.jdo.annotations.Element;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
@@ -24,8 +26,18 @@ public class Room {
   @Persistent
   private String name;
   
-  @Persistent
+  @Persistent @Element(dependent = "true")
   private List<Sensor> sensors;
+  
+  public Room(String name, List<Sensor> sensors) {
+    this.name = name;
+    this.sensors = sensors;
+  }
+  
+  public Room(String name) {
+    this.name = name;
+    this.sensors = new ArrayList<>();
+  }
 
   public String getName() {
     return name;
@@ -45,5 +57,9 @@ public class Room {
 
   public void setSensors(List<Sensor> sensors) {
     this.sensors = sensors;
+  }
+  
+  public void addSensor(Sensor sensor) {
+    this.sensors.add(sensor);
   }
 }
