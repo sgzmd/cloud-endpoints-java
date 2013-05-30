@@ -4,3 +4,4 @@ workspace/
 *.bin
 *indexes-auto.xml
 *.api
+*.class
