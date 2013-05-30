@@ -5,9 +5,9 @@ import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
-import javax.jdo.annotations.Unique;
 
 import org.joda.time.Instant;
+import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
 import com.google.appengine.api.datastore.Key;
@@ -19,6 +19,8 @@ import com.google.appengine.api.datastore.Key;
  */
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
 public class Sensor {
+  static final DateTimeFormatter UTC_DATETIME_FORMATTER = ISODateTimeFormat.basicDateTimeNoMillis().withZoneUTC();
+
   public enum SensorType {
     MOTION,
     TEMPERATURE
@@ -77,7 +79,7 @@ public class Sensor {
 
   public String getLastActiveUtc() {
     if (lastActive != null) {
-      return ISODateTimeFormat.basicDateTimeNoMillis().withZoneUTC().print(lastActive);
+      return UTC_DATETIME_FORMATTER.print(lastActive);
     } else {
       return "";
     }
