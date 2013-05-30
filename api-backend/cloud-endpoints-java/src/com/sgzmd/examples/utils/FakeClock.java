@@ -13,4 +13,8 @@ public class FakeClock implements Clock {
   public Instant now() {
     return now;
   }
+  
+  public void setNow(Instant now) {
+    this.now = now;
+  }
 }

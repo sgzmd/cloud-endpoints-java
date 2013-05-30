@@ -28,7 +28,7 @@ public class Sensor {
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
   private Key key;
 
-  @Persistent @Unique private String networkId;
+  @Persistent private String networkId;
 
   @Persistent private Boolean active;
 

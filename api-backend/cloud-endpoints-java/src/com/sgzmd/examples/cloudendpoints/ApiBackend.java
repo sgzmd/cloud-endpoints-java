@@ -110,6 +110,11 @@ public class ApiBackend {
   @ApiMethod(name = "addSensor", httpMethod = "POST", path = "rooms/{room}")
   public Room addSensorToRoom(@Named("room") long roomId, Sensor sensor) {
     PersistenceManager pm = getPM(); 
+    
+    if (findSensorByNetworkId(sensor.getNetworkId(), pm) != null) {
+      throw new IllegalArgumentException("Duplicate sensor network id: " + sensor.getNetworkId());
+    }
+    
     Room room;
     try {
       room = (Room) pm.getObjectById(
@@ -130,17 +135,12 @@ public class ApiBackend {
    * @param sensorNetworkId {@link Sensor} to update.
    * @throws NotFoundException
    */
-  @SuppressWarnings("unchecked")
   @ApiMethod(name = "logSensorUpdate", httpMethod = "GET", path = "sensors/{network_id}")
   public void sensorUpdated(@Named("network_id") String sensorNetworkId) throws NotFoundException {
     log("sensorUpdated{0}", sensorNetworkId);
     PersistenceManager pm = getPM();
-    Query query = pm.newQuery(Sensor.class);
-    query.setFilter("networkId == networkIdParam");
-    query.declareParameters("String networkIdParam");
     try {
-      // @Unique constraint on sensor ensures there will be no more than one
-      Sensor sensor = Iterables.getOnlyElement((List<Sensor>) query.execute(sensorNetworkId), null);
+      Sensor sensor = findSensorByNetworkId(sensorNetworkId, pm);
       if (sensor != null) {
         sensor.setLastActive(clock.now());
         log("Sensor updated: {0}", sensor);
@@ -149,8 +149,20 @@ public class ApiBackend {
         throw new NotFoundException("Sensor not found: network_id" + sensorNetworkId);
       }
     } finally {
-      query.closeAll();
       pm.close();
+    }
+  }
+  
+  @SuppressWarnings("unchecked")
+  private Sensor findSensorByNetworkId(String networkId, PersistenceManager pm) {
+    Query query = pm.newQuery(Sensor.class);
+    query.setFilter("networkId == networkIdParam");
+    query.declareParameters("String networkIdParam");
+    
+    try {
+      return Iterables.getOnlyElement((List<Sensor>)query.execute(networkId), null);
+    } finally {
+      query.closeAll();
     }
   }
   

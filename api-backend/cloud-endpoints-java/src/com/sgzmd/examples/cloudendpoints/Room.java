@@ -1,6 +1,8 @@
 package com.sgzmd.examples.cloudendpoints;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.jdo.annotations.Element;
@@ -9,6 +11,8 @@ import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+
+import org.joda.time.Instant;
 
 import com.google.appengine.api.datastore.Key;
 
@@ -78,5 +82,18 @@ public class Room {
     }
     
     return this;
+  }
+  
+  public Instant getLastActive() {
+    if (sensors != null) {
+      return Collections.max(sensors, new Comparator<Sensor>() {
+        @Override
+        public int compare(Sensor o1, Sensor o2) {
+          return o1.getLastActive().compareTo(o2.getLastActive());
+        }
+      }).getLastActive();
+    } else {
+      return null;
+    }
   }
 }

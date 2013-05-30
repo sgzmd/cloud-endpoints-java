@@ -1,7 +1,8 @@
 package com.sgzmd.examples.cloudendpoints;
 
-import static org.junit.Assert.*;
 import static com.google.appengine.labs.repackaged.com.google.common.collect.Iterables.getOnlyElement;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
@@ -18,16 +19,17 @@ import com.google.appengine.labs.repackaged.com.google.common.collect.Iterables;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.sgzmd.examples.cloudendpoints.Sensor.SensorType;
-import com.sgzmd.examples.utils.Clock;
 import com.sgzmd.examples.utils.FakeClock;
 
 @SuppressWarnings("unchecked")
 public class ApiBackendTest {
   private static final Instant NOW = DateTime.parse("2013-05-30T18:31:01Z").toInstant();
   private static final String SENSOR_NETWORK_ID = "Sensor Network Id";
+  private static final String OTHER_SENSOR_NETWORK_ID = SENSOR_NETWORK_ID + "1";
   private static final String NEW_ROOM = "New Room";
   private static final String TEST_ROOM = "Test Room";
-  private static final Clock CLOCK = new FakeClock(NOW);
+  
+  private FakeClock clock;
   
   private final LocalServiceTestHelper helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
   
@@ -37,7 +39,8 @@ public class ApiBackendTest {
   @Before
   public void setUp() throws Exception {
     helper.setUp();
-    this.api = new ApiBackend(CLOCK);
+    this.clock = new FakeClock(NOW);
+    this.api = new ApiBackend(clock);
     this.pm = PMF.get().getPersistenceManager();
   }
   
@@ -87,7 +90,7 @@ public class ApiBackendTest {
   @Test
   public void testAddSensorToRoom() {
     Room room = createTestRoom();
-    createTestMotionSensor(room);
+    createTestMotionSensor(room, SENSOR_NETWORK_ID);
     
     List<Room> rooms = (List <Room>)pm.newQuery(pm.newQuery(Room.class)).execute();
     Room foundRoom = Iterables.getOnlyElement(rooms);
@@ -97,7 +100,7 @@ public class ApiBackendTest {
 
   @Test
   public void testSensorUpdated() throws NotFoundException {
-    Sensor sensor = Iterables.getOnlyElement(createTestMotionSensor(createTestRoom()).getSensors());
+    Sensor sensor = Iterables.getOnlyElement(createTestMotionSensor(createTestRoom(), SENSOR_NETWORK_ID).getSensors());
     assertEquals(0, sensor.getLastActive().getMillis());
     
     api.sensorUpdated(sensor.getNetworkId());
@@ -111,8 +114,25 @@ public class ApiBackendTest {
           .toInstant());
   }
 
-  private Room createTestMotionSensor(Room room) {
-    Sensor sensor = new Sensor(SENSOR_NETWORK_ID, true, SensorType.MOTION);
+  @Test
+  public void testLastActive() throws NotFoundException {
+    // creating two sensors in a room
+    Room room = createTestRoom();
+    createTestMotionSensor(room, SENSOR_NETWORK_ID);
+    room = createTestMotionSensor(room, OTHER_SENSOR_NETWORK_ID);
+    
+    api.sensorUpdated(SENSOR_NETWORK_ID);
+    long NEW_NOW = clock.now().getMillis() + 100;
+    clock.setNow(new Instant(NEW_NOW));
+    api.sensorUpdated(OTHER_SENSOR_NETWORK_ID);
+    
+    List<Room> rooms = (List <Room>)pm.newQuery(pm.newQuery(Room.class)).execute();
+    Room foundRoom = Iterables.getOnlyElement(rooms);
+    assertEquals(NEW_NOW, foundRoom.getLastActive().getMillis());
+  }
+  
+  private Room createTestMotionSensor(Room room, String networkId) {
+    Sensor sensor = new Sensor(networkId, true, SensorType.MOTION);
     return api.addSensorToRoom(room.getKey().getId(), sensor);
   }
   
