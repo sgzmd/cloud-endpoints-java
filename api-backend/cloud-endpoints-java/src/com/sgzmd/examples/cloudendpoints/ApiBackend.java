@@ -123,6 +123,13 @@ public class ApiBackend {
     return room;
   }
 
+  /**
+   * Will be called whenever {@link Sensor} fired and needs to be updated. 
+   * Sensor's last active will be set to {@link #clock.now()}. 
+   * 
+   * @param sensorNetworkId {@link Sensor} to update.
+   * @throws NotFoundException
+   */
   @SuppressWarnings("unchecked")
   @ApiMethod(name = "logSensorUpdate", httpMethod = "GET", path = "sensors/{network_id}")
   public void sensorUpdated(@Named("network_id") String sensorNetworkId) throws NotFoundException {
