@@ -28,18 +28,13 @@ public class Sensor {
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
   private Key key;
 
-  @Persistent
-  @Unique
-  private String networkId;
+  @Persistent @Unique private String networkId;
 
-  @Persistent
-  private Boolean active;
+  @Persistent private Boolean active;
 
-  @Persistent
-  private Long lastActive = 0L;
+  @Persistent private Long lastActive = 0L;
 
-  @Persistent
-  private SensorType sensorType;
+  @Persistent private SensorType sensorType;
 
   public Sensor(String networkId, Boolean active, SensorType type) {
     this.networkId = networkId;
