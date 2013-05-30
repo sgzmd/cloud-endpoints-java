@@ -5,6 +5,10 @@ import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+import javax.jdo.annotations.Unique;
+
+import org.joda.time.Instant;
+import org.joda.time.format.ISODateTimeFormat;
 
 import com.google.appengine.api.datastore.Key;
 
@@ -15,19 +19,33 @@ import com.google.appengine.api.datastore.Key;
  */
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
 public class Sensor {
+  public enum SensorType {
+    MOTION,
+    TEMPERATURE
+  }
+
   @PrimaryKey
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
   private Key key;
 
   @Persistent
+  @Unique
+  private String networkId;
+
+  @Persistent
   private Boolean active;
 
   @Persistent
-  private String name;
+  private Long lastActive = 0L;
 
-  public Sensor(String name, Boolean active) {
-    this.name = name;
+  @Persistent
+  private SensorType sensorType;
+
+  public Sensor(String networkId, Boolean active, SensorType type) {
+    this.networkId = networkId;
     this.active = active;
+    this.lastActive = 0L;
+    this.sensorType = type;
   }
 
   public Boolean getActive() {
@@ -38,15 +56,41 @@ public class Sensor {
     this.active = active;
   }
 
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
   public Key getKey() {
     return key;
+  }
+
+  public String getNetworkId() {
+    return networkId;
+  }
+
+  public SensorType getSensorType() {
+    return sensorType;
+  }
+
+  public void setLastActive(Instant instant) {
+    lastActive = instant.getMillis();
+  }
+
+  public Instant getLastActive() {
+    if (lastActive != null) {
+      return new Instant(lastActive);
+    } else {
+      return null;
+    }
+  }
+
+  public String getLastActiveUtc() {
+    if (lastActive != null) {
+      return ISODateTimeFormat.basicDateTimeNoMillis().withZoneUTC().print(lastActive);
+    } else {
+      return "";
+    }
+  }
+
+  @Override
+  public String toString() {
+    return "Sensor [key=" + key + ", networkId=" + networkId + ", active=" + active
+        + ", lastActive=" + lastActive + ", sensorType=" + sensorType + "]";
   }
 }

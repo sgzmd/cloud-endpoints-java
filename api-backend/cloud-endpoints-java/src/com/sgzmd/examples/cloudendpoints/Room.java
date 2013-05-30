@@ -14,7 +14,7 @@ import com.google.appengine.api.datastore.Key;
 
 /**
  * JDO for Room.
- *  
+ * 
  * @author me@romankirillov.info [Roman "sgzmd" Kirillov"]
  */
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
@@ -25,18 +25,19 @@ public class Room {
 
   @Persistent
   private String name;
-  
-  @Persistent @Element(dependent = "true")
+
+  @Persistent
+  @Element(dependent = "true")
   private List<Sensor> sensors;
-  
+
   public Room(String name, List<Sensor> sensors) {
     this.name = name;
     this.sensors = sensors;
   }
-  
+
   public Room(String name) {
     this.name = name;
-    this.sensors = new ArrayList<>();
+    this.sensors = new ArrayList<Sensor>();
   }
 
   public String getName() {
@@ -58,8 +59,24 @@ public class Room {
   public void setSensors(List<Sensor> sensors) {
     this.sensors = sensors;
   }
-  
+
   public void addSensor(Sensor sensor) {
     this.sensors.add(sensor);
+  }
+
+  @Override
+  public String toString() {
+    return "Room [key=" + key + ", name=" + name + "]";
+  }
+
+  public Room updateFrom(Room room) {
+    if (room.getName() != null) {
+      this.name = room.name;
+    }
+    if (room.getSensors() != null) {
+      this.sensors = room.sensors;
+    }
+    
+    return this;
   }
 }

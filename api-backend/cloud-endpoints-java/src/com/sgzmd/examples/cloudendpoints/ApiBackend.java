@@ -10,7 +10,10 @@ import javax.jdo.Query;
 
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
+import com.google.api.server.spi.response.NotFoundException;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.labs.repackaged.com.google.common.collect.Iterables;
+import com.sgzmd.examples.utils.*;
 
 /**
  * API entry point.
@@ -20,7 +23,16 @@ import com.google.appengine.api.datastore.KeyFactory;
 @Api(name = "monitoring", version = "v1")
 public class ApiBackend {
   private static final Logger logger = Logger.getLogger(ApiBackend.class.getSimpleName());
+  private final Clock clock;
 
+  public ApiBackend() {
+    this.clock = new SystemClock();
+  }
+  
+  public ApiBackend(Clock clock) {
+    this.clock = clock;
+  }
+  
   /**
    * Adds a {@link Room} to collection.
    * 
@@ -111,6 +123,30 @@ public class ApiBackend {
     return room;
   }
 
+  @SuppressWarnings("unchecked")
+  @ApiMethod(name = "logSensorUpdate", httpMethod = "GET", path = "sensors/{network_id}")
+  public void sensorUpdated(@Named("network_id") String sensorNetworkId) throws NotFoundException {
+    log("sensorUpdated{0}", sensorNetworkId);
+    PersistenceManager pm = getPM();
+    Query query = pm.newQuery(Sensor.class);
+    query.setFilter("networkId == networkIdParam");
+    query.declareParameters("String networkIdParam");
+    try {
+      // @Unique constraint on sensor ensures there will be no more than one
+      Sensor sensor = Iterables.getOnlyElement((List<Sensor>) query.execute(sensorNetworkId), null);
+      if (sensor != null) {
+        sensor.setLastActive(clock.now());
+        log("Sensor updated: {0}", sensor);
+      } else {
+        log("Sensor with NetworkId = {0} not found", sensorNetworkId);
+        throw new NotFoundException("Sensor not found: network_id" + sensorNetworkId);
+      }
+    } finally {
+      query.closeAll();
+      pm.close();
+    }
+  }
+  
   private void log(String format, Object... objects) {
     logger.log(Level.INFO, format, objects);
   }
