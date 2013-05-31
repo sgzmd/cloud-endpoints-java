@@ -5,6 +5,7 @@ import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+import javax.jdo.annotations.Unique;
 
 import org.joda.time.Instant;
 import org.joda.time.format.DateTimeFormatter;
@@ -30,7 +31,7 @@ public class Sensor {
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
   private Key key;
 
-  @Persistent private String networkId;
+  @Persistent @Unique private String networkId;
 
   @Persistent private Boolean active;
 

@@ -57,13 +57,11 @@ public class ApiBackend {
    * @return updated {@link Room}.
    */
   @ApiMethod(name = "updateRoom", httpMethod = "PUT", path = "rooms/{room}")
-  public Room updateRoom(@Named("room") long roomId, Room updatedRoom) {
+  public Room updateRoom(@Named("room") Long roomId, Room updatedRoom) {
     log("updateRoom({0}, {1})", roomId, updatedRoom);
     PersistenceManager pm = getPM();
     try {
-      Room room = (Room) pm.getObjectById(
-          Room.class,
-          KeyFactory.createKey(Room.class.getSimpleName(), roomId));
+      Room room = (Room) pm.getObjectById(Room.class, roomId);
       room.updateFrom(updatedRoom);
       return room;
     } finally {
@@ -77,12 +75,10 @@ public class ApiBackend {
    * @param roomId {@link Room} ID to be deleted.
    */
   @ApiMethod(name = "deleteRoom", httpMethod = "DELETE", path = "rooms/{room}")
-  public void deleteRoom(@Named("room") long roomId) {
+  public void deleteRoom(@Named("room") Long roomId) {
     log("deleteRoom({0})", roomId);
     PersistenceManager pm = getPM();
-    Room room = (Room) pm.getObjectById(
-        Room.class,
-        KeyFactory.createKey(Room.class.getSimpleName(), roomId));
+    Room room = (Room) pm.getObjectById(Room.class, roomId);
     pm.deletePersistent(room);
   }
 
