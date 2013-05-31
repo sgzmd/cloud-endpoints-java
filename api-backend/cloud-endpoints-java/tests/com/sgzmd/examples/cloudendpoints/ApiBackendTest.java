@@ -2,6 +2,7 @@ package com.sgzmd.examples.cloudendpoints;
 
 import static com.google.appengine.labs.repackaged.com.google.common.collect.Iterables.getOnlyElement;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
@@ -131,6 +132,34 @@ public class ApiBackendTest {
     assertEquals(NEW_NOW, foundRoom.getLastActive().getMillis());
   }
   
+  @Test
+  public void testDisarm() {
+    createAndReset(false);
+    
+    Room room = Iterables.getOnlyElement(api.list());
+    for (Sensor s : room.getSensors()) {
+      assertFalse(s.getActive());
+    }
+  }
+  
+  public void testArm() {
+    // all sensors are first created as active
+    createAndReset(false);
+    createAndReset(true);
+    
+    Room room = Iterables.getOnlyElement(api.list());
+    for (Sensor s : room.getSensors()) {
+      assertTrue(s.getActive());
+    }
+  }
+  
+  private void createAndReset(boolean state) {
+    Room room = createTestRoom();
+    createTestMotionSensor(room, SENSOR_NETWORK_ID);
+    createTestMotionSensor(room, OTHER_SENSOR_NETWORK_ID);
+    api.resetAllSensors(state);
+  }
+
   private Room createTestMotionSensor(Room room, String networkId) {
     Sensor sensor = new Sensor(networkId, true, SensorType.MOTION);
     return api.addSensorToRoom(room.getKey().getId(), sensor);

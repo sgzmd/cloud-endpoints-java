@@ -12,11 +12,14 @@ import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.response.NotFoundException;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.labs.repackaged.com.google.common.annotations.VisibleForTesting;
 import com.google.appengine.labs.repackaged.com.google.common.collect.Iterables;
 import com.sgzmd.examples.utils.*;
 
 /**
  * API entry point.
+ * 
+ * Local API explorer: {@link http://localhost:8888/_ah/api/explorer}
  * 
  * @author me@romankirillov.info [Roman "sgzmd" Kirillov"]
  */
@@ -145,6 +148,42 @@ public class ApiBackend {
         throw new NotFoundException("Sensor not found: network_id" + sensorNetworkId);
       }
     } finally {
+      pm.close();
+    }
+  }
+  
+  /**
+   * Disables all sensors in all rooms of the household.
+   */
+  @ApiMethod(name = "disarm", httpMethod = "GET", path = "disarm")
+  public void disarm() {
+    log("Disarming all sensors");
+    
+    resetAllSensors(false);
+  }
+
+  /**
+   * Disables all sensors in all rooms of the household.
+   */
+  @ApiMethod(name = "arm", httpMethod = "GET", path = "arm")
+  public void arm() {
+    log("Arming all sensors");
+    
+    resetAllSensors(true);
+  }
+
+  @VisibleForTesting void resetAllSensors(boolean state) {
+    PersistenceManager pm = getPM();
+    Query query = pm.newQuery(Sensor.class);
+    try {
+      @SuppressWarnings({"unchecked"})
+      List<Sensor> sensors = (List<Sensor>)pm.newQuery(query).execute();
+      for (Sensor sensor : sensors) {
+        log("Updating sensor %s", sensor.toString());
+        sensor.setActive(state);
+      }
+    } finally {
+      query.closeAll();
       pm.close();
     }
   }
