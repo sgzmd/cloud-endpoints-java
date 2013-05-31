@@ -179,7 +179,7 @@ public class ApiBackend {
       @SuppressWarnings({"unchecked"})
       List<Sensor> sensors = (List<Sensor>)pm.newQuery(query).execute();
       for (Sensor sensor : sensors) {
-        log("Updating sensor %s", sensor.toString());
+        log("Updating sensor {0}", sensor.toString());
         sensor.setActive(state);
       }
     } finally {
