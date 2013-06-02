@@ -1,6 +1,5 @@
 package com.sgzmd.examples.monitoringclient.android;
 
-import java.io.StringReader;
 import java.util.List;
 
 import android.app.ActionBar;
@@ -19,15 +18,12 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.google.api.client.util.Preconditions;
 import com.google.api.services.monitoring.Monitoring;
 import com.google.api.services.monitoring.model.Room;
-import com.google.gson.Gson;
 import com.sgzmd.examples.monitoringclient.android.model.RoomParcelable;
 
 public class MainActivity extends FragmentActivity implements
