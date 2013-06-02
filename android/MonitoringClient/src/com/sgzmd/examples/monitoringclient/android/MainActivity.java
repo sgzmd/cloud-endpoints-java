@@ -1,5 +1,6 @@
 package com.sgzmd.examples.monitoringclient.android;
 
+import java.io.StringReader;
 import java.util.List;
 
 import android.app.ActionBar;
@@ -20,11 +21,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.api.client.util.Preconditions;
 import com.google.api.services.monitoring.Monitoring;
 import com.google.api.services.monitoring.model.Room;
+import com.google.gson.Gson;
+import com.sgzmd.examples.monitoringclient.android.model.RoomParcelable;
 
 public class MainActivity extends FragmentActivity implements
     ActionBar.TabListener {
@@ -102,13 +106,6 @@ public class MainActivity extends FragmentActivity implements
 
     // For each of the sections in the app, add a tab to the action bar.
     for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
-      // Create a tab with text corresponding to the page title defined by
-      // the
-      // adapter.
-      // Also specify this Activity object, which implements the
-      // TabListener
-      // interface, as the
-      // listener for when this tab is selected.
       actionBar.addTab(actionBar.newTab()
           .setText(mSectionsPagerAdapter.getPageTitle(i)).setTabListener(this));
     }
@@ -125,7 +122,6 @@ public class MainActivity extends FragmentActivity implements
    * of the primary sections of the app.
    */
   public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
     private final List<Room> rooms;
 
     public SectionsPagerAdapter(FragmentManager fm, List<Room> rooms) {
@@ -138,10 +134,14 @@ public class MainActivity extends FragmentActivity implements
     public Fragment getItem(int i) {
       Preconditions.checkArgument(i < rooms.size());
 
-      Fragment fragment = new DummySectionFragment(rooms.get(i));
+      Fragment fragment = new DummySectionFragment();
       Bundle args = new Bundle();
+      
       args.putInt(DummySectionFragment.ARG_SECTION_NUMBER, i + 1);
+      args.putParcelable(DummySectionFragment.ROOM, RoomParcelable.fromRoom(rooms.get(i)));
+      
       fragment.setArguments(args);
+      
       return fragment;
     }
 
@@ -162,33 +162,26 @@ public class MainActivity extends FragmentActivity implements
    * displays dummy text.
    */
   public static class DummySectionFragment extends Fragment {
-    private Room room;
+    public static final String ROOM = "room_json";
 
-    public DummySectionFragment(Room room) {
-      this.room = room;
-    }
+    private RoomParcelable room;
 
     public static final String ARG_SECTION_NUMBER = "section_number";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
         Bundle savedInstanceState) {
-
+      
+      room = getArguments().getParcelable(ROOM);
+      
       LinearLayout layout = new LinearLayout(getActivity());
       layout.setGravity(Gravity.TOP);
 
-      TextView textView = new TextView(getActivity());
-      textView.setGravity(Gravity.CENTER);
-      Bundle args = getArguments();
-      textView.setText(Integer.toString(args.getInt(ARG_SECTION_NUMBER)));
-
-      Button btn = new Button(getActivity());
-      btn.setGravity(Gravity.BOTTOM);
-      btn.setText("My button text");
-
-      layout.addView(btn);
-
-      // textView.ad
+      SensorArrayAdapter adapter = new SensorArrayAdapter(getActivity(), room.getSensors());
+      ListView listView = new ListView(getActivity());
+      listView.setAdapter(adapter);
+      
+      layout.addView(listView);
 
       return layout;
     }
