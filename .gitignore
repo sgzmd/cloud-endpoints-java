@@ -11,3 +11,9 @@ workspace/
 *.apk
 
 android/MonitoringClient/bin/MonitoringClient.apk
+
+api-backend/cloud-endpoints-java/endpoint-libs/libmonitoring-v1/monitoring/cloud-endpoints-example-monitoring-v1-20130601095107-java-1.14.2-beta.jar.properties
+
+android/MonitoringClient/bin/jarlist.cache
+
+api-backend/cloud-endpoints-java/cloud-endpoints-java.iml
