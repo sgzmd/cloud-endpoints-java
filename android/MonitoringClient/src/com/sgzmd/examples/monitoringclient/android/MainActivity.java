@@ -1,6 +1,5 @@
 package com.sgzmd.examples.monitoringclient.android;
 
-import java.io.IOException;
 import java.util.List;
 
 import android.app.ActionBar;
@@ -23,13 +22,9 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.Preconditions;
-import com.google.api.client.util.Throwables;
 import com.google.api.services.monitoring.Monitoring;
 import com.google.api.services.monitoring.model.Room;
-import com.google.api.services.monitoring.model.RoomCollection;
 
 public class MainActivity extends FragmentActivity implements
     ActionBar.TabListener {
@@ -44,25 +39,18 @@ public class MainActivity extends FragmentActivity implements
    */
   SectionsPagerAdapter mSectionsPagerAdapter;
 
-  final MonitoringDataProvider dataProvider = new FakeMonitoringDataProvider();
+  final MonitoringDataProvider dataProvider = new NetworkMonitoringProvider();
 
   /**
    * The {@link ViewPager} that will host the section contents.
    */
   ViewPager mViewPager;
 
-  private Monitoring monitoring = null;
   private List<Room> rooms = null;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
-    if (null == this.monitoring) {
-      this.monitoring = new Monitoring.Builder(
-          AndroidHttp.newCompatibleTransport(), new GsonFactory(), null)
-          .build();
-    }
 
     new AsyncTask<Void, Void, List<Room>>() {
       @Override
@@ -79,7 +67,6 @@ public class MainActivity extends FragmentActivity implements
     }.execute();
 
     setContentView(R.layout.activity_main);
-
   }
 
   private void initialisePager(List<Room> rooms) {
