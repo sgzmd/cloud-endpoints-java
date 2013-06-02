@@ -5,3 +5,9 @@ workspace/
 *indexes-auto.xml
 *.api
 *.class
+
+*.apk
+
+*.apk
+
+android/MonitoringClient/bin/MonitoringClient.apk

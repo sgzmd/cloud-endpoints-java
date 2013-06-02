@@ -1,6 +1,6 @@
 {
  "kind": "discovery#rpcDescription",
- "etag": "\"381e4s_8vUCNPclzPT4yxtto0eA/Zo0nJUCP3H_C_lW0dbg_QohfyzM\"",
+ "etag": "\"381e4s_8vUCNPclzPT4yxtto0eA/4O8PHMIpuoqMaVqgcIBrrDXRnkg\"",
  "discoveryVersion": "v1",
  "id": "monitoring:v1",
  "name": "monitoring",
@@ -13,8 +13,8 @@
   "x32": "http://www.google.com/images/icons/product/search-32.gif"
  },
  "protocol": "rpc",
- "rootUrl": "https://myapp.appspot.com/_ah/api/",
- "rpcUrl": "https://myapp.appspot.com/_ah/api/rpc",
+ "rootUrl": "https://cloud-endpoints-example.appspot.com/_ah/api/",
+ "rpcUrl": "https://cloud-endpoints-example.appspot.com/_ah/api/rpc",
  "rpcPath": "/_ah/api/rpc",
  "parameters": {
   "alt": {

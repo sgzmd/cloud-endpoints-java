@@ -23,6 +23,8 @@ import com.google.appengine.api.datastore.Key;
  */
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
 public class Room {
+  private static final Instant NEVER = new Instant(0);
+
   @PrimaryKey
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
   private Key key;
@@ -33,6 +35,8 @@ public class Room {
   @Persistent
   @Element(dependent = "true")
   private List<Sensor> sensors;
+  
+  public Room() {}
 
   public Room(String name, List<Sensor> sensors) {
     this.name = name;
@@ -85,7 +89,7 @@ public class Room {
   }
   
   public Instant getLastActive() {
-    if (sensors != null) {
+    if (sensors != null && sensors.size() > 0) {
       return Collections.max(sensors, new Comparator<Sensor>() {
         @Override
         public int compare(Sensor o1, Sensor o2) {
@@ -93,7 +97,7 @@ public class Room {
         }
       }).getLastActive();
     } else {
-      return null;
+      return NEVER;
     }
   }
 }

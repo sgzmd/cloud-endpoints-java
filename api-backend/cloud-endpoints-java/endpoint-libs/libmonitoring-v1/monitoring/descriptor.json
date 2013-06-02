@@ -1,11 +1,11 @@
 {
   "files": [
     {
-      "path": "myapp-monitoring-v1-20130531184736-java-1.14.2-beta-sources.jar", 
+      "path": "cloud-endpoints-example-monitoring-v1-20130601095107-java-1.14.2-beta-sources.jar", 
       "type": "source"
     }, 
     {
-      "path": "myapp-monitoring-v1-20130531184736-java-1.14.2-beta.jar.properties", 
+      "path": "cloud-endpoints-example-monitoring-v1-20130601095107-java-1.14.2-beta.jar.properties", 
       "type": "android.properties"
     }
   ], 
@@ -689,7 +689,7 @@
     }
   ], 
   "language_version": "1.14.2-beta", 
-  "revision": 20130531184736, 
+  "revision": 20130601095107, 
   "id": "monitoring:v1", 
   "modulePath": "com/google/api/services"
 }

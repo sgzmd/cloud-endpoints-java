@@ -38,6 +38,8 @@ public class Sensor {
   @Persistent private Long lastActive = 0L;
 
   @Persistent private SensorType sensorType;
+  
+  public Sensor() {}
 
   public Sensor(String networkId, Boolean active, SensorType type) {
     this.networkId = networkId;

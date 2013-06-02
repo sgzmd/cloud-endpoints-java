@@ -1,6 +1,6 @@
 {
  "kind": "discovery#restDescription",
- "etag": "\"381e4s_8vUCNPclzPT4yxtto0eA/Zo0nJUCP3H_C_lW0dbg_QohfyzM\"",
+ "etag": "\"381e4s_8vUCNPclzPT4yxtto0eA/4O8PHMIpuoqMaVqgcIBrrDXRnkg\"",
  "discoveryVersion": "v1",
  "id": "monitoring:v1",
  "name": "monitoring",
@@ -13,9 +13,9 @@
   "x32": "http://www.google.com/images/icons/product/search-32.gif"
  },
  "protocol": "rest",
- "baseUrl": "https://myapp.appspot.com/_ah/api/monitoring/v1/",
+ "baseUrl": "https://cloud-endpoints-example.appspot.com/_ah/api/monitoring/v1/",
  "basePath": "/_ah/api/monitoring/v1/",
- "rootUrl": "https://myapp.appspot.com/_ah/api/",
+ "rootUrl": "https://cloud-endpoints-example.appspot.com/_ah/api/",
  "servicePath": "monitoring/v1/",
  "batchPath": "batch",
  "parameters": {

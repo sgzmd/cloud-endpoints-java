@@ -1,16 +1,19 @@
 package com.sgzmd.examples.monitoringclient.android;
 
 import java.io.IOException;
+import java.util.List;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -28,7 +31,8 @@ import com.google.api.services.monitoring.Monitoring;
 import com.google.api.services.monitoring.model.Room;
 import com.google.api.services.monitoring.model.RoomCollection;
 
-public class MainActivity extends FragmentActivity implements ActionBar.TabListener {
+public class MainActivity extends FragmentActivity implements
+    ActionBar.TabListener {
 
   /**
    * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -40,13 +44,15 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
    */
   SectionsPagerAdapter mSectionsPagerAdapter;
 
+  final MonitoringDataProvider dataProvider = new FakeMonitoringDataProvider();
+
   /**
    * The {@link ViewPager} that will host the section contents.
    */
   ViewPager mViewPager;
 
   private Monitoring monitoring = null;
-  private RoomCollection rooms = null;
+  private List<Room> rooms = null;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -54,23 +60,36 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 
     if (null == this.monitoring) {
       this.monitoring = new Monitoring.Builder(
-          AndroidHttp.newCompatibleTransport(),
-          new GsonFactory(),
-          null).build();
+          AndroidHttp.newCompatibleTransport(), new GsonFactory(), null)
+          .build();
     }
 
+    new AsyncTask<Void, Void, List<Room>>() {
+      @Override
+      protected List<Room> doInBackground(Void... params) {
+        Log.i("MonitoringClient", "Trying to connect to "
+            + Monitoring.DEFAULT_BASE_URL);
+        return dataProvider.getRooms();
+      }
 
-    try {
-      this.rooms = monitoring.listRooms().execute();
-    } catch (IOException e) {
-      Throwables.propagate(e);
-    }
+      @Override
+      protected void onPostExecute(List<Room> result) {
+        initialisePager(result);
+      }
+    }.execute();
 
     setContentView(R.layout.activity_main);
+
+  }
+
+  private void initialisePager(List<Room> rooms) {
     // Create the adapter that will return a fragment for each of the three
     // primary sections
     // of the app.
-    mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), rooms);
+    this.rooms = rooms;
+
+    mSectionsPagerAdapter = new SectionsPagerAdapter(
+        getSupportFragmentManager(), rooms);
 
     // Set up the action bar.
     final ActionBar actionBar = getActionBar();
@@ -80,28 +99,31 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     mViewPager = (ViewPager) findViewById(R.id.pager);
     mViewPager.setAdapter(mSectionsPagerAdapter);
 
-    // When swiping between different sections, select the corresponding tab.
-    // We can also use ActionBar.Tab#select() to do this if we have a reference
+    // When swiping between different sections, select the corresponding
+    // tab.
+    // We can also use ActionBar.Tab#select() to do this if we have a
+    // reference
     // to the
     // Tab.
-    mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-      @Override
-      public void onPageSelected(int position) {
-        actionBar.setSelectedNavigationItem(position);
-      }
-    });
+    mViewPager
+        .setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+          @Override
+          public void onPageSelected(int position) {
+            actionBar.setSelectedNavigationItem(position);
+          }
+        });
 
     // For each of the sections in the app, add a tab to the action bar.
     for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
-      // Create a tab with text corresponding to the page title defined by the
+      // Create a tab with text corresponding to the page title defined by
+      // the
       // adapter.
-      // Also specify this Activity object, which implements the TabListener
+      // Also specify this Activity object, which implements the
+      // TabListener
       // interface, as the
       // listener for when this tab is selected.
-      actionBar.addTab(
-          actionBar.newTab()
-              .setText(mSectionsPagerAdapter.getPageTitle(i))
-              .setTabListener(this));
+      actionBar.addTab(actionBar.newTab()
+          .setText(mSectionsPagerAdapter.getPageTitle(i)).setTabListener(this));
     }
   }
 
@@ -117,9 +139,9 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
    */
   public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-    private final RoomCollection rooms;
+    private final List<Room> rooms;
 
-    public SectionsPagerAdapter(FragmentManager fm, RoomCollection rooms) {
+    public SectionsPagerAdapter(FragmentManager fm, List<Room> rooms) {
       super(fm);
 
       this.rooms = rooms;
@@ -128,8 +150,8 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     @Override
     public Fragment getItem(int i) {
       Preconditions.checkArgument(i < rooms.size());
-      
-      Fragment fragment = new DummySectionFragment(rooms.getItems().get(i));
+
+      Fragment fragment = new DummySectionFragment(rooms.get(i));
       Bundle args = new Bundle();
       args.putInt(DummySectionFragment.ARG_SECTION_NUMBER, i + 1);
       fragment.setArguments(args);
@@ -144,7 +166,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     @Override
     public CharSequence getPageTitle(int position) {
       Preconditions.checkArgument(position < rooms.size());
-      return rooms.getItems().get(position).getName();
+      return rooms.get(position).getName();
     }
   }
 
