@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.jdo.annotations.Element;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
@@ -15,6 +16,9 @@ import javax.jdo.annotations.PrimaryKey;
 import org.joda.time.Instant;
 
 import com.google.appengine.api.datastore.Key;
+import com.google.appengine.labs.repackaged.com.google.common.base.Predicate;
+import com.google.appengine.labs.repackaged.com.google.common.collect.Iterables;
+import com.google.appengine.labs.repackaged.com.google.common.collect.Lists;
 
 /**
  * JDO for Room.
@@ -35,8 +39,9 @@ public class Room {
   @Persistent
   @Element(dependent = "true")
   private List<Sensor> sensors;
-  
-  public Room() {}
+
+  public Room() {
+  }
 
   public Room(String name, List<Sensor> sensors) {
     this.name = name;
@@ -84,10 +89,10 @@ public class Room {
     if (room.getSensors() != null) {
       this.sensors = room.sensors;
     }
-    
+
     return this;
   }
-  
+
   public Instant getLastActive() {
     if (sensors != null && sensors.size() > 0) {
       return Collections.max(sensors, new Comparator<Sensor>() {
@@ -99,5 +104,16 @@ public class Room {
     } else {
       return NEVER;
     }
+  }
+
+  /* default */ void deleteSensor(final Long sensorId) {
+    // TODO(sgzmd): this is not how it is expected to work.
+    this.sensors = Lists.newArrayList(Iterables.filter(sensors,
+        new Predicate<Sensor>() {
+          @Override
+          public boolean apply(@Nullable Sensor sensor) {
+            return sensor.getKey().getId() != sensorId;
+          }
+        }));
   }
 }

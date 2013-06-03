@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.inject.Named;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
@@ -11,10 +12,12 @@ import javax.jdo.Query;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.response.NotFoundException;
+import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.labs.repackaged.com.google.common.annotations.VisibleForTesting;
 import com.google.appengine.labs.repackaged.com.google.common.collect.Iterables;
-import com.sgzmd.examples.utils.*;
+import com.sgzmd.examples.utils.Clock;
+import com.sgzmd.examples.utils.SystemClock;
 
 /**
  * API entry point.
@@ -91,7 +94,7 @@ public class ApiBackend {
    */
   @SuppressWarnings("unchecked")
   @ApiMethod(name = "listRooms", httpMethod = "GET", path = "rooms")
-  public List<Room> list() {
+  public List<Room> listRooms() {
     log("list()");
     PersistenceManager pm = getPM();
     Query query = pm.newQuery(Room.class);
@@ -127,6 +130,18 @@ public class ApiBackend {
     return room;
   }
 
+  @ApiMethod(name = "deleteSensor", httpMethod = "DELETE", path = "sensors/{sensor}")
+  public void deleteSensor(@Named("room") Long roomId, @Named("sensor") Long sensorId) {
+    PersistenceManager pm = getPM();
+    log("deleteSensor(roomId={0}, sensorId={1}", roomId, sensorId);
+    try {
+      Room room = pm.getObjectById(Room.class, roomId);
+      room.deleteSensor(sensorId);
+    } finally {
+      pm.close();
+    }
+  }
+  
   /**
    * Will be called whenever {@link Sensor} fired and needs to be updated. 
    * Sensor's last active will be set to {@link #clock.now()}. 
@@ -165,13 +180,52 @@ public class ApiBackend {
   /**
    * Disables all sensors in all rooms of the household.
    */
-  @ApiMethod(name = "arm", httpMethod = "GET", path = "arm")
-  public void arm() {
-    log("Arming all sensors");
-    
+  @ApiMethod(name = "arm", httpMethod = "GET", path = "reset")
+  public void reset(
+      @Nullable @Named("room") Long roomId,
+      @Nullable @Named("sensor") String sensorNetworkId,
+      Boolean state) {
+    if (sensorNetworkId != null) {
+      resetSensor(sensorNetworkId, state);
+    } else if (roomId != null) {
+      
+    }
     resetAllSensors(true);
   }
+  
+  @VisibleForTesting void resetSensor(String networkId, Boolean state) {
+    log("resetSensor({0}, {1})", networkId, state);
+    PersistenceManager pm = getPM();
+    try {
+      Sensor sensor = findSensorByNetworkId(networkId, pm);
+      if (sensor != null) {
+        log("Setting sensor {0} to {1}", sensor, state);
+        sensor.setActive(state);
+      }
+    } finally {
+      pm.close();
+    }
+  }
 
+  @VisibleForTesting void resetRoom(Long roomId, Boolean state) {
+    log("resetRoom({0}, {1}", roomId, state);
+    PersistenceManager pm = getPM();
+    Room room;
+    try {
+      room = (Room) pm.getObjectById(
+          Room.class,
+          KeyFactory.createKey(Room.class.getSimpleName(), roomId));
+      if (room != null) {
+        for (Sensor sensor : room.getSensors()) {
+          log("Setting sensor {0} to {1}", sensor, state);
+          sensor.setActive(state);
+        }
+      }
+    } finally {
+      pm.close();
+    }
+  }
+  
   @VisibleForTesting void resetAllSensors(boolean state) {
     PersistenceManager pm = getPM();
     Query query = pm.newQuery(Sensor.class);

@@ -133,12 +133,31 @@ public class ApiBackendTest {
   }
   
   @Test
+  public void testDeleteSensor() {
+    // creating two sensors in a room
+    Room room = createTestRoom();
+    createTestMotionSensor(room, SENSOR_NETWORK_ID);
+    room = createTestMotionSensor(room, OTHER_SENSOR_NETWORK_ID);
+    
+    System.err.println(room.toString());
+   
+    long lastSensorId = Iterables.getLast(room.getSensors()).getKey().getId();
+    long firstSensorId = Iterables.getFirst(room.getSensors(), null).getKey().getId();
+    
+    api.deleteSensor(room.getKey().getId(), firstSensorId);
+    List<Room> rooms = (List <Room>)pm.newQuery(pm.newQuery(Room.class)).execute();
+
+    Room foundRoom = Iterables.getOnlyElement(rooms);
+    assertEquals(lastSensorId, Iterables.getOnlyElement(foundRoom.getSensors()).getKey().getId());
+  }
+  
+  @Test
   public void testDisarm() {
     createAndReset(false);
     
-    Room room = Iterables.getOnlyElement(api.list());
+    Room room = Iterables.getOnlyElement(api.listRooms());
     for (Sensor s : room.getSensors()) {
-      assertFalse(s.getActive());
+      assertFalse(s.getActive());   
     }
   }
   
@@ -147,7 +166,7 @@ public class ApiBackendTest {
     createAndReset(false);
     createAndReset(true);
     
-    Room room = Iterables.getOnlyElement(api.list());
+    Room room = Iterables.getOnlyElement(api.listRooms());
     for (Sensor s : room.getSensors()) {
       assertTrue(s.getActive());
     }
