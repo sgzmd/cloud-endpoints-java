@@ -2,19 +2,18 @@
 <html>
 <head>
     <title>Monitoring JS client</title>
+    <link href="/libs/css/ui-lightness/jquery-ui-1.10.3.custom.css" rel="stylesheet">
 
-    <script src="http://code.jquery.com/jquery-2.0.0.js"></script>
-
-    <script src="/static/monitoring.js"></script>
-
-
-    <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
-
-    <script src="https://apis.google.com/js/client.js?onload=init">
+    <script src="/static/client.js">
     </script>
 
+    <script src="/libs/js/jquery-1.9.1.js"></script>
+    <script src="/libs/js/jquery-ui-1.10.3.custom.js"></script>
 
-    <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" media="screen" />
+    <script src="/static/monitoring.js"></script>
+    <script src="/static/crud.js"></script>
+
+
     <link rel="stylesheet" type="text/css" href="/static/style.css" media="screen" />
 
 </head>
@@ -22,9 +21,21 @@
 
 <div id='tabs' class='tabs'>
     <ul>
-        <!--<li><a href='#tab1'>#1</a></li>-->
     </ul>
-    <!--<div id='tab1'></div>-->
 </div>
+
+<button id="create-room">Create room</button>
+
+<div id="dialog-form" title="Create new room">
+    <p class="validateTips">All form fields are required.</p>
+
+    <form>
+        <fieldset>
+            <label for="name">Name</label>
+            <input type="text" name="name" id="name" class="text ui-widget-content ui-corner-all" />
+        </fieldset>
+    </form>
+</div>
+
 </body>
 </html>

@@ -12,7 +12,6 @@ import javax.jdo.Query;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.response.NotFoundException;
-import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.labs.repackaged.com.google.common.annotations.VisibleForTesting;
 import com.google.appengine.labs.repackaged.com.google.common.collect.Iterables;
@@ -100,6 +99,23 @@ public class ApiBackend {
     Query query = pm.newQuery(Room.class);
     return (List<Room>) pm.newQuery(query).execute();
   }
+  
+  @ApiMethod(name = "getRoom", httpMethod = "GET", path="rooms/{room}")
+  public Room getRoom(@Named("room") Long roomId) {
+    log("getRoom({0})", roomId);
+    PersistenceManager pm = getPM();
+    Room room = null;
+
+    try {
+      room = (Room) pm.getObjectById(
+          Room.class,
+          KeyFactory.createKey(Room.class.getSimpleName(), roomId));
+    } finally {
+      pm.close();
+    }
+    
+    return room;
+  }
 
   /**
    * Adds a new {@link Sensor} to an existing {@link Room}.
@@ -156,7 +172,7 @@ public class ApiBackend {
     try {
       Sensor sensor = findSensorByNetworkId(sensorNetworkId, pm);
       if (sensor != null) {
-        sensor.setLastActive(clock.now());
+        sensor.setLastActive(clock.now().getMillis());
         log("Sensor updated: {0}", sensor);
       } else {
         log("Sensor with NetworkId = {0} not found", sensorNetworkId);
@@ -183,25 +199,28 @@ public class ApiBackend {
   @ApiMethod(name = "arm", httpMethod = "GET", path = "reset")
   public void reset(
       @Nullable @Named("room") Long roomId,
-      @Nullable @Named("sensor") String sensorNetworkId,
-      Boolean state) {
-    if (sensorNetworkId != null) {
-      resetSensor(sensorNetworkId, state);
+      @Nullable @Named("sensor") Long sensorId,
+      @Named("state") Boolean state) {
+    if (sensorId != null) {
+      resetSensor(sensorId, state);
     } else if (roomId != null) {
       
     }
     resetAllSensors(true);
   }
   
-  @VisibleForTesting void resetSensor(String networkId, Boolean state) {
-    log("resetSensor({0}, {1})", networkId, state);
+  @VisibleForTesting void resetSensor(Long sensorId, Boolean state) {
+    log("resetSensor({0}, {1})", sensorId, state);
     PersistenceManager pm = getPM();
+    Sensor sensor = null;
     try {
-      Sensor sensor = findSensorByNetworkId(networkId, pm);
+      sensor = pm.getObjectById(Sensor.class, sensorId);
+
       if (sensor != null) {
         log("Setting sensor {0} to {1}", sensor, state);
         sensor.setActive(state);
       }
+
     } finally {
       pm.close();
     }

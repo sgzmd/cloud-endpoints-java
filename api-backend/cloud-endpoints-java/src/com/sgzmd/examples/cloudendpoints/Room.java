@@ -13,12 +13,11 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-import org.joda.time.Instant;
-
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.labs.repackaged.com.google.common.base.Predicate;
 import com.google.appengine.labs.repackaged.com.google.common.collect.Iterables;
 import com.google.appengine.labs.repackaged.com.google.common.collect.Lists;
+import com.google.appengine.labs.repackaged.com.google.common.primitives.Longs;
 
 /**
  * JDO for Room.
@@ -27,7 +26,7 @@ import com.google.appengine.labs.repackaged.com.google.common.collect.Lists;
  */
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
 public class Room {
-  private static final Instant NEVER = new Instant(0);
+  private static final long NEVER = 0L;
 
   @PrimaryKey
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
@@ -64,6 +63,14 @@ public class Room {
   public Key getKey() {
     return key;
   }
+  
+  public long getId() {
+    if (key != null) {
+      return key.getId();
+    } else {
+      return -1;
+    }
+  }
 
   public List<Sensor> getSensors() {
     return sensors;
@@ -93,12 +100,12 @@ public class Room {
     return this;
   }
 
-  public Instant getLastActive() {
+  public long getLastActive() {
     if (sensors != null && sensors.size() > 0) {
       return Collections.max(sensors, new Comparator<Sensor>() {
         @Override
         public int compare(Sensor o1, Sensor o2) {
-          return o1.getLastActive().compareTo(o2.getLastActive());
+          return Longs.compare(o1.getLastActive(), o2.getLastActive());
         }
       }).getLastActive();
     } else {

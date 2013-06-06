@@ -7,8 +7,6 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.annotations.Unique;
 
-import org.joda.time.Instant;
-import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
 import com.google.appengine.api.datastore.Key;
@@ -20,8 +18,6 @@ import com.google.appengine.api.datastore.Key;
  */
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
 public class Sensor {
-  static final DateTimeFormatter UTC_DATETIME_FORMATTER = ISODateTimeFormat.basicDateTimeNoMillis().withZoneUTC();
-
   public enum SensorType {
     MOTION,
     TEMPERATURE
@@ -38,6 +34,8 @@ public class Sensor {
   @Persistent private Long lastActive = 0L;
 
   @Persistent private SensorType sensorType;
+  
+  @Persistent private String sensorName;
   
   public Sensor() {}
 
@@ -59,6 +57,14 @@ public class Sensor {
   public Key getKey() {
     return key;
   }
+  
+  public long getId() {
+    if (key != null) {
+      return key.getId();
+    } else {
+      return -1;
+    }
+  }
 
   public String getNetworkId() {
     return networkId;
@@ -68,21 +74,29 @@ public class Sensor {
     return sensorType;
   }
 
-  public void setLastActive(Instant instant) {
-    lastActive = instant.getMillis();
+  public void setLastActive(long instant) {
+    lastActive = instant;
   }
 
-  public Instant getLastActive() {
+  public Long getLastActive() {
     if (lastActive != null) {
-      return new Instant(lastActive);
+      return lastActive;
     } else {
       return null;
     }
   }
+  
+  public String getSensorName() {
+    return sensorName;
+  }
+
+  public void setSensorName(String sensorName) {
+    this.sensorName = sensorName;
+  }
 
   public String getLastActiveUtc() {
     if (lastActive != null) {
-      return UTC_DATETIME_FORMATTER.print(lastActive);
+      return ISODateTimeFormat.basicDateTimeNoMillis().withZoneUTC().print(lastActive);
     } else {
       return "";
     }

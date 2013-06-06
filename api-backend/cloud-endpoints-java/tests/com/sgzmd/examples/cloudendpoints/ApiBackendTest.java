@@ -102,17 +102,16 @@ public class ApiBackendTest {
   @Test
   public void testSensorUpdated() throws NotFoundException {
     Sensor sensor = Iterables.getOnlyElement(createTestMotionSensor(createTestRoom(), SENSOR_NETWORK_ID).getSensors());
-    assertEquals(0, sensor.getLastActive().getMillis());
+    assertEquals(0, sensor.getLastActive().longValue());
     
     api.sensorUpdated(sensor.getNetworkId());
     assertEquals(
-        NOW,
+        NOW.getMillis(),
         getOnlyElement(getOnlyElement(
           (List<Room>) pm.newQuery(
             pm.newQuery(Room.class))
           .execute()).getSensors())
-          .getLastActive()
-          .toInstant());
+          .getLastActive().longValue());
   }
 
   @Test
@@ -129,7 +128,7 @@ public class ApiBackendTest {
     
     List<Room> rooms = (List <Room>)pm.newQuery(pm.newQuery(Room.class)).execute();
     Room foundRoom = Iterables.getOnlyElement(rooms);
-    assertEquals(NEW_NOW, foundRoom.getLastActive().getMillis());
+    assertEquals(NEW_NOW, foundRoom.getLastActive());
   }
   
   @Test
