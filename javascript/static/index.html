@@ -4,13 +4,14 @@
     <title>Monitoring JS client</title>
     <link href="/libs/css/ui-lightness/jquery-ui-1.10.3.custom.css" rel="stylesheet">
 
-    <script src="/static/client.js">
+    <script src="/static/monitoring.js"></script>
+
+    <script src="https://apis.google.com/js/client.js?onload=init">
     </script>
 
     <script src="/libs/js/jquery-1.9.1.js"></script>
     <script src="/libs/js/jquery-ui-1.10.3.custom.js"></script>
 
-    <script src="/static/monitoring.js"></script>
     <script src="/static/crud.js"></script>
 
 
@@ -25,6 +26,7 @@
 </div>
 
 <button id="create-room">Create room</button>
+<button id="create-sensor">Create sensor</button>
 
 <div id="dialog-form" title="Create new room">
     <p class="validateTips">All form fields are required.</p>
@@ -33,6 +35,29 @@
         <fieldset>
             <label for="name">Name</label>
             <input type="text" name="name" id="name" class="text ui-widget-content ui-corner-all" />
+        </fieldset>
+    </form>
+</div>
+
+<div id="create-sensor-form" title="Create new sensor">
+    <p class="validateSensors">Name and Network ID are required</p>
+
+    <form>
+        <fieldset>
+            <label for="sensor-name">Name</label>
+            <input type="text" name="sensor-name" id="sensor-name" class="text ui-widget-content ui-corner-all"/>
+
+            <label for="sensor-network-id">Network ID</label>
+            <input type="text" name="sensor-network-id" id="sensor-network-id" class="text ui-widget-content ui-corner-all"/>
+
+            <label for="sensor-type">Sensor Type</label>
+            <select name="sensor-type" id="sensor-type" class="select ui-widget-content ui-corner-all">
+                <option value="MOTION">Motion detection</option>
+                <option name="TEMPERATURE">Temperature</option>
+            </select>
+
+            <label for="sensor-active">Active</label>
+            <input type="checkbox" name="sensor-active" id="sensor-active" value="true" class="checkbox ui-widget-content ui-corner-all" checked="true"/>
         </fieldset>
     </form>
 </div>

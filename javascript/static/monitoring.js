@@ -46,7 +46,7 @@ function makeRoomHtml(room, roomId) {
     var checked = sensor.active ? "checked" : ""
 
     html += makeCheckBox(
-        roomId,
+        room['id'],
         sensor.networkId,
         sensor.networkId,
         checked,
@@ -54,7 +54,7 @@ function makeRoomHtml(room, roomId) {
   }
 
   html += "<div class='room-buttons'>";
-  html += "<button>Add sensor</button>"
+  html += "<button id='add-sensor' value='" + room['id'] + "'>Add sensor</button>"
   html += "&nbsp;";
   html += "<button>Disarm room</button>";
   html += "&nbsp;";
@@ -69,8 +69,6 @@ function reloadAllData() {
     console.log(resp);
 
     $(document).ready(function () {
-      $("div#tabs").tabs();
-
       for (var item in resp.items) {
         var room = resp.items[item];
         var num_tabs = $("div#tabs ul li").length + 1;
@@ -83,8 +81,10 @@ function reloadAllData() {
         );
 
       }
-      $("div#tabs").tabs("refresh");
+      $("div#tabs").tabs();
     });
+
+    $('button#add-sensor').button().click(function(event) { addSensorDialog(event.currentTarget.value); })
   });
 
 }

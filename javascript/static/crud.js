@@ -33,7 +33,33 @@ var addRoom = function(name) {
   console.log("Will be adding a room");
   console.log(room);
 
-  // gapi.client.monitoring.rooms.
+  gapi.client.monitoring.addRoom(room).execute(function(resp){
+    console.log(resp);
+    location.reload();
+  });
+};
+
+var addSensorDialog = function(roomId) {
+  $("#create-sensor-form").data('roomId', roomId);
+  $("#create-sensor-form").dialog("open");
+};
+
+var addSensor = function(sensor, roomId) {
+  console.log("Will be adding sensor to room " + roomId);
+  console.log(sensor);
+
+  var data = {
+    'room': roomId,
+    'params': sensor
+  };
+
+  sensor['roomId'] = roomId;
+
+  console.log(data);
+
+  gapi.client.monitoring.addSensor(sensor).execute(function(resp){
+    console.log(resp);
+  });
 };
 
 var initUI = function () {
@@ -47,8 +73,8 @@ var initUI = function () {
 
   $("#dialog-form").dialog({
     autoOpen: false,
-    height: 300,
-    width: 350,
+    height: 'auto',
+    width: 'auto',
     modal: true,
     buttons: {
       "Add new room": function () {
@@ -71,6 +97,53 @@ var initUI = function () {
       name.val("").removeClass("ui-state-error");
     }
   });
+
+//  $("#create-sensor").button().click(function() {
+//    $("#create-sensor-form").dialog("open");
+//  });
+
+  $("#create-sensor-form").dialog({
+    autoOpen: false,
+    height: 'auto',
+    width: 'auto',
+    modal: true,
+    buttons: {
+      "Add new sensor": function () {
+        var roomId = $("#create-sensor-form").data('roomId');
+
+        var name = $('#sensor-name');
+        var bValid = true;
+        name.removeClass("ui-state-error");
+
+        bValid = bValid && checkLength(name, "username", 3, 16);
+
+        var network = $('#sensor-network-id');
+        network.removeClass("ui-state-error");
+
+        bValid = bValid && checkLength(network, "username", 3, 16);
+
+
+        if (bValid) {
+          var sensor = {
+            'name': name.val(),
+            'networkId': network.val(),
+            'sensorType': $('#sensor-type').val(),
+            'active': $('#sensor-active').val()
+          };
+          addSensor(sensor, roomId);
+          $(this).dialog("close");
+        }
+      },
+      'Cancel': function () {
+        $(this).dialog("close");
+      }
+    },
+    close: function () {
+      name.val("").removeClass("ui-state-error");
+    }
+  });
+
+
 };
 
 $(document).ready(initUI);

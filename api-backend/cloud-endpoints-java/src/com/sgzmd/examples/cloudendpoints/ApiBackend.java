@@ -126,8 +126,10 @@ public class ApiBackend {
    * @return Updated {@link Room} with added {@link Sensor}.
    */
   @ApiMethod(name = "addSensor", httpMethod = "POST", path = "rooms/{room}")
-  public Room addSensorToRoom(@Named("room") long roomId, Sensor sensor) {
+  public Room addSensorToRoom(@Named("room") Long roomId, Sensor sensor) {
     PersistenceManager pm = getPM(); 
+    
+    log("addSensorToRoom({0}, {1})", roomId, sensor);
     
     if (findSensorByNetworkId(sensor.getNetworkId(), pm) != null) {
       throw new IllegalArgumentException("Duplicate sensor network id: " + sensor.getNetworkId());
