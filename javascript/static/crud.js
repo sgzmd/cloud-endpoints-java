@@ -50,14 +50,14 @@ var addSensor = function(sensor, roomId) {
 
   var data = {
     'room': roomId,
-    'params': sensor
+    'resource': {
+      'sensor': sensor
+    }
   };
-
-  sensor['roomId'] = roomId;
 
   console.log(data);
 
-  gapi.client.monitoring.addSensor(sensor).execute(function(resp){
+  gapi.client.monitoring.addSensor(data).execute(function(resp){
     console.log(resp);
   });
 };
