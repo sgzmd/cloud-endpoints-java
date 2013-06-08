@@ -35,7 +35,15 @@ var addRoom = function(name) {
 
   gapi.client.monitoring.addRoom(room).execute(function(resp){
     console.log(resp);
-    reloadAllData(true);
+
+    if (gLocalApi) {
+      // adding a bit of latency for local API. Probably some
+      // sort of bug, but without it it only returns added
+      // room on the second call, I wonder why...
+      setTimeout(function(){reloadAllData(true);}, 500);
+    } else {
+      reloadAllData(true);
+    }
   });
 };
 

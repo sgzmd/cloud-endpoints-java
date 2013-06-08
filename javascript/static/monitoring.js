@@ -1,4 +1,5 @@
 var gTabs = null;
+var gLocalApi = false;
 
 // This is a very basic format function, but it will serve our goals.
 String.prototype.format = function() {
@@ -32,7 +33,7 @@ var handleCheckbox = function (sensorId, roomId, cb) {
   gapi.client.monitoring.arm(request).execute(function (resp) {
     console.log(resp);
     console.log("reloading the data...");
-    reloadAllData(true);
+    rebuildTabBar(resp, true);
   });
 };
 
@@ -119,6 +120,10 @@ var rebuildTabBar = function (resp, reload) {
 
     gTabs = $("div#tabs").tabs();
     gTabs.tabs("option", "active", selected);
+
+    $('button#add-sensor').button().click(function (event) {
+      addSensorDialog(event.currentTarget.value);
+    })
   }
 };
 
@@ -136,10 +141,6 @@ var reloadAllData = function(reload) {
     } else {
       rebuildTabBar(resp, true);
     }
-
-    $('button#add-sensor').button().click(function (event) {
-      addSensorDialog(event.currentTarget.value);
-    })
   });
 }
 
@@ -150,4 +151,8 @@ function init() {
 //  var ROOT = 'https://cloud-endpoints-example.appspot.com/_ah/api';
   var ROOT = 'http://localhost:8888/_ah/api';
   gapi.client.load('monitoring', 'v1', reloadAllData, ROOT);
+
+  if (ROOT.indexOf("localhost") > 0) {
+    gLocalApi = true;
+  }
 }

@@ -153,7 +153,7 @@ public class ApiBackend {
   }
 
   @ApiMethod(name = "deleteSensor", httpMethod = "DELETE", path = "sensors/{sensor}")
-  public void deleteSensor(@Named("room") Long roomId, @Named("sensor") Long sensorId) {
+  public List<Room> deleteSensor(@Named("room") Long roomId, @Named("sensor") Long sensorId) {
     PersistenceManager pm = getPM();
     log("deleteSensor(roomId={0}, sensorId={1}", roomId, sensorId);
     try {
@@ -162,6 +162,8 @@ public class ApiBackend {
     } finally {
       pm.close();
     }
+    
+    return listRooms();
   }
   
   /**
@@ -201,9 +203,13 @@ public class ApiBackend {
 
   /**
    * Disables all sensors in all rooms of the household.
+   * 
+   * In this and other methods you can see that we are returning full list of
+   * {@link Room} objects. This is an optimisation to avoid making a second
+   * query.
    */
   @ApiMethod(name = "arm", httpMethod = "GET", path = "reset")
-  public void reset(
+  public List<Room> reset(
       @Nullable @Named("room") Long roomId,
       @Nullable @Named("sensor") Long sensorId,
       @Named("state") Boolean state) {
@@ -214,6 +220,8 @@ public class ApiBackend {
     } else {
       resetAllSensors(state);
     }
+    
+    return listRooms();
   }
   
   @VisibleForTesting void resetSensor(final Long sensorId, final Long roomId, final Boolean state) {
