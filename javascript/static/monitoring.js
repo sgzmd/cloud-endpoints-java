@@ -20,6 +20,15 @@ var CHECKBOX_TEMPLATE = '<div> \
   </div>';
 
 
+var sendArmRequest = function(request) {
+  console.log("Sending Arm request", request);
+  gapi.client.monitoring.arm(request).execute(function (resp) {
+    console.log(resp);
+    console.log("reloading the data...");
+    rebuildTabBar(resp, true);
+  });
+}
+
 var handleCheckbox = function (sensorId, roomId, cb) {
   // if sensor was active, cb.value will be "on"
   // before the callback has finished.
@@ -29,13 +38,18 @@ var handleCheckbox = function (sensorId, roomId, cb) {
     'room': roomId,
     'state': active
   };
-  console.log("Sending Arm request", request);
-  gapi.client.monitoring.arm(request).execute(function (resp) {
-    console.log(resp);
-    console.log("reloading the data...");
-    rebuildTabBar(resp, true);
-  });
-};
+  sendArmRequest(request);
+}
+
+var armOrDisarmRoom = function(event, state) {
+  var roomId = event.currentTarget.value;
+  var request = {
+    'room': roomId,
+    'state': state
+  };
+
+  sendArmRequest(request);
+}
 
 /**
  * It's ugly as a sin, but it works. It will produce something like this:
@@ -75,9 +89,9 @@ function makeRoomHtml(room) {
   html += "<div class='room-buttons'>";
   html += "<button id='add-sensor' value='" + room['id'] + "'>Add sensor</button>"
   html += "&nbsp;";
-  html += "<button>Disarm room</button>";
+  html += "<button id='disarm-room' value='" + room['id'] + "'>Disarm room</button>";
   html += "&nbsp;";
-  html += "<button>Arm room</button>";
+  html += "<button id='arm-room' value='" + room['id'] + "'>Arm room</button>";
   html += "</div>";
 
   return html;
@@ -124,6 +138,14 @@ var rebuildTabBar = function (resp, reload) {
     $('button#add-sensor').button().click(function (event) {
       addSensorDialog(event.currentTarget.value);
     })
+
+    $('button#disarm-room').button().click(function(event) {
+      armOrDisarmRoom(event, false);
+    });
+
+    $('button#arm-room').button().click(function(event) {
+      armOrDisarmRoom(event, true);
+    });
   }
 };
 
