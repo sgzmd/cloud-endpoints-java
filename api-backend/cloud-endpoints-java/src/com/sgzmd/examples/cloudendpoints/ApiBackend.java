@@ -8,12 +8,16 @@ import javax.annotation.Nullable;
 import javax.inject.Named;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
+import javax.jdo.Transaction;
 
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.response.NotFoundException;
+import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.labs.repackaged.com.google.common.annotations.VisibleForTesting;
+import com.google.appengine.labs.repackaged.com.google.common.base.Predicate;
+import com.google.appengine.labs.repackaged.com.google.common.base.Throwables;
 import com.google.appengine.labs.repackaged.com.google.common.collect.Iterables;
 import com.sgzmd.examples.utils.Clock;
 import com.sgzmd.examples.utils.SystemClock;
@@ -204,25 +208,28 @@ public class ApiBackend {
       @Nullable @Named("sensor") Long sensorId,
       @Named("state") Boolean state) {
     if (sensorId != null) {
-      resetSensor(sensorId, state);
+      resetSensor(sensorId, roomId, state);
     } else if (roomId != null) {
-      
+      resetRoom(roomId, state);
+    } else {
+      resetAllSensors(state);
     }
-    resetAllSensors(true);
   }
   
-  @VisibleForTesting void resetSensor(Long sensorId, Boolean state) {
+  @VisibleForTesting void resetSensor(final Long sensorId, final Long roomId, final Boolean state) {
     log("resetSensor({0}, {1})", sensorId, state);
     PersistenceManager pm = getPM();
-    Sensor sensor = null;
     try {
-      sensor = pm.getObjectById(Sensor.class, sensorId);
+      Room room = pm.getObjectById(Room.class, roomId);
+      List<Sensor> sensors = room.getSensors();
 
-      if (sensor != null) {
-        log("Setting sensor {0} to {1}", sensor, state);
-        sensor.setActive(state);
+      for (Sensor sensor : sensors) {
+        if (sensor.getId() == sensorId) {
+          log("Setting sensor {0} to active={1}", sensor, state);
+          sensor.setActive(state);
+          break;
+        }
       }
-
     } finally {
       pm.close();
     }

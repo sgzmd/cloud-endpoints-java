@@ -11,7 +11,7 @@ String.prototype.format = function() {
 };
 
 var CHECKBOX_TEMPLATE = '<div> \
-   <input onclick="handleCheckbox({0}, this);" \
+   <input onclick="handleCheckbox({0}, {1}, this);" \
           type="checkbox" \
           id="sensor_{1}_{0}"\
           checked="{3}"> \
@@ -19,8 +19,25 @@ var CHECKBOX_TEMPLATE = '<div> \
   </div>';
 
 
-var handleCheckbox = function (cb, networkId) {
-  alert(networkId);
+var handleCheckbox = function (sensorId, roomId, cb) {
+  // if sensor was active, cb.value will be "on"
+  // before the callback has finished.
+  var active = ! (cb.value == "on");
+  var request = {
+    'sensor' : sensorId,
+    'room': roomId,
+    'state': active
+  };
+  console.log("Sending Arm request", request);
+  gapi.client.monitoring.arm(request).execute(function(resp){
+    if (!resp) {
+      alert("Failed to change sensor state");
+    } else {
+      console.log(resp);
+      console.log("reloading the data...");
+      reloadAllData(true);
+    }
+  });
 };
 
 var toggleSensorState = function (sensorId, cb) {
@@ -123,7 +140,7 @@ var rebuildTabBar = function (resp, reload) {
  */
 var reloadAllData = function(reload) {
   gapi.client.monitoring.listRooms().execute(function (resp) {
-    console.log(resp);
+    console.info("Data from API:", resp);
 
     if (! reload ) {
       $(document).ready(function() { rebuildTabBar(resp) });
@@ -141,7 +158,7 @@ var reloadAllData = function(reload) {
  * Called by Google JS client upon finishing to load.
  */
 function init() {
-  var ROOT = 'https://cloud-endpoints-example.appspot.com/_ah/api';
-//  var ROOT = 'http://localhost:8888/_ah/api';
+//  var ROOT = 'https://cloud-endpoints-example.appspot.com/_ah/api';
+  var ROOT = 'http://localhost:8888/_ah/api';
   gapi.client.load('monitoring', 'v1', reloadAllData, ROOT);
 }

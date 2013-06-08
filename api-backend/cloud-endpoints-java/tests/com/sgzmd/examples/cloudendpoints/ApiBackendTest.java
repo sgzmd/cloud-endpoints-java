@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.api.server.spi.response.NotFoundException;
+import com.google.appengine.labs.repackaged.com.google.common.base.Pair;
 import com.google.appengine.labs.repackaged.com.google.common.collect.Iterables;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
@@ -160,10 +161,12 @@ public class ApiBackendTest {
     }
   }
   
+  @Test
   public void testArm() {
     // all sensors are first created as active
     createAndReset(false);
-    createAndReset(true);
+    
+    api.reset(null, null, true);
     
     Room room = Iterables.getOnlyElement(api.listRooms());
     for (Sensor s : room.getSensors()) {
@@ -171,11 +174,56 @@ public class ApiBackendTest {
     }
   }
   
-  private void createAndReset(boolean state) {
+  @Test
+  public void testArmRoom() {
+    long roomId = createAndReset(false);
+    
+    api.reset(roomId, null, true);
+
+    Room room = Iterables.getOnlyElement(api.listRooms());
+    for (Sensor s : room.getSensors()) {
+       assertTrue(s.getActive());
+    }
+  }
+  
+  @Test
+  public void testResetSpecificSensor() {
+    createAndReset(true);
+    Pair<Room,Sensor> original = getRoomAndFirstSensor();
+    
+    // sanity check
+    assertTrue(original.second.getActive());
+    
+    // modifying the data
+    api.reset(original.first.getId(), original.second.getId(), false);
+    Pair<Room,Sensor> modified = getRoomAndFirstSensor();
+    
+    // sanity check
+    assertEquals(original.second.getId(), modified.second.getId());
+    
+    // Note: it is critically important to read the data also via API and not
+    // directly: caching and isolation (apparently ?!) can get into way.
+    Room room = Iterables.getOnlyElement(api.listRooms());
+    Sensor modifiedSensor = room.getSensors().get(0);
+    
+    // actual check
+     assertFalse(modifiedSensor.getActive());
+  }
+  
+  Pair<Room, Sensor> getRoomAndFirstSensor() {
+    List<Room> rooms = (List <Room>)pm.newQuery(pm.newQuery(Room.class)).execute();
+    Room foundRoom = Iterables.getOnlyElement(rooms);
+    Sensor sensor = foundRoom.getSensors().get(0);
+    
+    return Pair.of(foundRoom, sensor);
+  }
+  
+  private long createAndReset(boolean state) {
     Room room = createTestRoom();
     createTestMotionSensor(room, SENSOR_NETWORK_ID);
     createTestMotionSensor(room, OTHER_SENSOR_NETWORK_ID);
     api.resetAllSensors(state);
+    return room.getId();
   }
 
   private Room createTestMotionSensor(Room room, String networkId) {
