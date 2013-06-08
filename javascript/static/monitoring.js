@@ -84,7 +84,7 @@ function makeRoomHtml(room) {
  * and then rebuild; otherwise will just build the tab bar.
  */
 var rebuildTabBar = function (resp, reload) {
-  if (resp.items.length == 0) {
+  if (!resp  || !resp.items || resp.items.length == 0) {
     alert("No rooms created. Please add some!");
   } else {
 
@@ -141,7 +141,7 @@ var reloadAllData = function(reload) {
  * Called by Google JS client upon finishing to load.
  */
 function init() {
-//  var ROOT = 'https://cloud-endpoints-example.appspot.com/_ah/api';
-  var ROOT = 'http://localhost:8888/_ah/api';
+  var ROOT = 'https://cloud-endpoints-example.appspot.com/_ah/api';
+//  var ROOT = 'http://localhost:8888/_ah/api';
   gapi.client.load('monitoring', 'v1', reloadAllData, ROOT);
 }
