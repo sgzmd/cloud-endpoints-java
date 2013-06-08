@@ -14,7 +14,7 @@ var CHECKBOX_TEMPLATE = '<div> \
    <input onclick="handleCheckbox({0}, {1}, this);" \
           type="checkbox" \
           id="sensor_{1}_{0}"\
-          checked="{3}"> \
+          {3}> \
        <label for="sensor_{1}_{0}">{2}</label> \
   </div>';
 
@@ -22,28 +22,18 @@ var CHECKBOX_TEMPLATE = '<div> \
 var handleCheckbox = function (sensorId, roomId, cb) {
   // if sensor was active, cb.value will be "on"
   // before the callback has finished.
-  var active = ! (cb.value == "on");
+  var active = cb.checked;
   var request = {
     'sensor' : sensorId,
     'room': roomId,
     'state': active
   };
   console.log("Sending Arm request", request);
-  gapi.client.monitoring.arm(request).execute(function(resp){
-    if (!resp) {
-      alert("Failed to change sensor state");
-    } else {
-      console.log(resp);
-      console.log("reloading the data...");
-      reloadAllData(true);
-    }
+  gapi.client.monitoring.arm(request).execute(function (resp) {
+    console.log(resp);
+    console.log("reloading the data...");
+    reloadAllData(true);
   });
-};
-
-var toggleSensorState = function (sensorId, cb) {
-  console.log("toggleSensorState: " + sensorId);
-  var newState = !(!!currentState);
-  console.log("New state: " + newState);
 };
 
 /**
@@ -57,7 +47,7 @@ var toggleSensorState = function (sensorId, cb) {
  * </div>
  */
 var makeCheckBox = function (roomId, name, sensorId, checked) {
-  return CHECKBOX_TEMPLATE.format(sensorId, roomId, name, checked);
+  return CHECKBOX_TEMPLATE.format(sensorId, roomId, name, checked ? "checked=true" : "");
 }
 
 
@@ -78,8 +68,7 @@ function makeRoomHtml(room) {
         room['id'],
         sensor.sensorName,
         sensor['id'],
-        checked,
-        item);
+        sensor.active);
   }
 
   html += "<div class='room-buttons'>";

@@ -207,7 +207,7 @@ public class ApiBackendTest {
     Sensor modifiedSensor = room.getSensors().get(0);
     
     // actual check
-     assertFalse(modifiedSensor.getActive());
+    assertFalse(modifiedSensor.getActive());
   }
   
   Pair<Room, Sensor> getRoomAndFirstSensor() {
