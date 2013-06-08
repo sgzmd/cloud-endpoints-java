@@ -46,18 +46,21 @@ var addSensorDialog = function(roomId) {
 
 var addSensor = function(sensor, roomId) {
   console.log("Will be adding sensor to room " + roomId);
+
+//  var data = {
+//    'room': roomId,
+//    'resource': {
+//      'sensor': sensor
+//    }
+//  };
+
+//  console.log(data);
+
+  sensor['room'] = roomId;
+
   console.log(sensor);
 
-  var data = {
-    'room': roomId,
-    'resource': {
-      'sensor': sensor
-    }
-  };
-
-  console.log(data);
-
-  gapi.client.monitoring.addSensor(data).execute(function(resp){
+  gapi.client.monitoring.addSensor(sensor).execute(function(resp){
     console.log(resp);
   });
 };

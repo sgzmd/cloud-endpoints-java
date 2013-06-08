@@ -9,3 +9,8 @@ div.cb {
 div.tabs {
   max-width: 700px;
 }
+
+
+div#buttons {
+  margin-top: 1em;
+}
