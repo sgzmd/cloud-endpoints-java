@@ -35,7 +35,7 @@ var addRoom = function(name) {
 
   gapi.client.monitoring.addRoom(room).execute(function(resp){
     console.log(resp);
-    location.reload();
+    reloadAllData(true);
   });
 };
 
@@ -47,21 +47,16 @@ var addSensorDialog = function(roomId) {
 var addSensor = function(sensor, roomId) {
   console.log("Will be adding sensor to room " + roomId);
 
-//  var data = {
-//    'room': roomId,
-//    'resource': {
-//      'sensor': sensor
-//    }
-//  };
-
-//  console.log(data);
-
   sensor['room'] = roomId;
 
   console.log(sensor);
 
   gapi.client.monitoring.addSensor(sensor).execute(function(resp){
-    console.log(resp);
+    if (resp) {
+      reloadAllData(true);
+    } else {
+      alert("There was a problem adding sensor");
+    }
   });
 };
 
@@ -128,7 +123,7 @@ var initUI = function () {
 
         if (bValid) {
           var sensor = {
-            'name': name.val(),
+            'sensorName': name.val(),
             'networkId': network.val(),
             'sensorType': $('#sensor-type').val(),
             'active': $('#sensor-active').val()
