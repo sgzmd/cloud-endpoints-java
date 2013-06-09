@@ -16,9 +16,19 @@ var CHECKBOX_TEMPLATE = '<div> \
           type="checkbox" \
           id="sensor_{1}_{0}"\
           {3}> \
-       <label for="sensor_{1}_{0}">{2}</label> \
+    <label for="sensor_{1}_{0}">\
+      <a href="#" onclick="triggerSensor(\'{4}\');">{2}</a>\
+    </label> &mdash; <small>{5}</small>\
   </div>';
 
+
+var triggerSensor = function(networkId) {
+  gapi.client.monitoring
+      .logSensorUpdate({'network_id': networkId})
+      .execute(function(resp){
+        reloadAllData(true);
+      });
+}
 
 var sendArmRequest = function(request) {
   console.log("Sending Arm request", request);
@@ -61,8 +71,14 @@ var armOrDisarmRoom = function(event, state) {
  *      <label for="sensor_0_DddEeeFff">DddEeeFff</label>
  * </div>
  */
-var makeCheckBox = function (roomId, name, sensorId, checked) {
-  return CHECKBOX_TEMPLATE.format(sensorId, roomId, name, checked ? "checked=true" : "");
+var makeCheckBox = function (roomId, name, sensorId, checked, networkId, lastUpdated) {
+  return CHECKBOX_TEMPLATE.format(
+      sensorId,
+      roomId,
+      name,
+      checked ? "checked=true" : "",
+      networkId,
+      lastUpdated);
 }
 
 
@@ -83,8 +99,12 @@ function makeRoomHtml(room) {
         room['id'],
         sensor.sensorName,
         sensor['id'],
-        sensor.active);
+        sensor.active,
+        sensor.networkId,
+        sensor.lastActive != 0 ? new Date(parseInt(sensor.lastActive, 10)).toJSON() : "Never updated");
   }
+
+  var lastRoomActive = room.lastActive != 0 ? new Date(parseInt(room.lastActive, 10)).toJSON() : "Never updated";
 
   html += "<div class='room-buttons'>";
   html += "<button id='add-sensor' value='" + room['id'] + "'>Add sensor</button>"
@@ -92,6 +112,7 @@ function makeRoomHtml(room) {
   html += "<button id='disarm-room' value='" + room['id'] + "'>Disarm room</button>";
   html += "&nbsp;";
   html += "<button id='arm-room' value='" + room['id'] + "'>Arm room</button>";
+  html += "<div class='room-last-active'>Last activity: " + lastRoomActive + "</div>";
   html += "</div>";
 
   return html;
