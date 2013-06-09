@@ -17,8 +17,8 @@ var CHECKBOX_TEMPLATE = '<div> \
           id="sensor_{1}_{0}"\
           {3}> \
     <label for="sensor_{1}_{0}">\
-      <a href="#" onclick="triggerSensor(\'{4}\');">{2}</a>\
-    </label> &mdash; <small>{5}</small>\
+      <a href="#" title="Click to update last-active" onclick="triggerSensor(\'{4}\');">{2}</a>\
+    </label> &mdash; <small title="Last time this sensor was triggered">{5}</small>\
   </div>';
 
 
@@ -112,7 +112,9 @@ function makeRoomHtml(room) {
   html += "<button id='disarm-room' value='" + room['id'] + "'>Disarm room</button>";
   html += "&nbsp;";
   html += "<button id='arm-room' value='" + room['id'] + "'>Arm room</button>";
-  html += "<div class='room-last-active'>Last activity: " + lastRoomActive + "</div>";
+  html += "<div class='room-last-active' " +
+      "title='Shows the last time any sensor in this room was active'>" +
+      "Last activity: " + lastRoomActive + "</div>";
   html += "</div>";
 
   return html;
@@ -167,6 +169,8 @@ var rebuildTabBar = function (resp, reload) {
     $('button#arm-room').button().click(function(event) {
       armOrDisarmRoom(event, true);
     });
+
+    $(document).tooltip();
   }
 };
 
