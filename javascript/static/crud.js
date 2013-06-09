@@ -25,6 +25,13 @@ function checkLength(o, n, min, max) {
   }
 }
 
+var deleteRoom = function(roomId) {
+  console.log(roomId);
+
+  $("#dialog-confirm").data('roomId', roomId);
+  $("#dialog-confirm").dialog("open");
+}
+
 var addRoom = function(name) {
   var room = {
     'name': name
@@ -146,6 +153,26 @@ var initUI = function () {
     },
     close: function () {
       name.val("").removeClass("ui-state-error");
+    }
+  });
+
+  $( "#dialog-confirm" ).dialog({
+    resizable: false,
+    autoOpen: false,
+    height:300,
+    width: 450,
+    modal: true,
+    buttons: {
+      "Kill all humans!": function() {
+        $( this ).dialog( "close" );
+        var roomId = $("#dialog-confirm").data('roomId');
+        gapi.client.monitoring.deleteRoom({'room' : roomId}).execute(function(resp){
+          reloadAllData(true);
+        });
+      },
+      Cancel: function() {
+        $( this ).dialog( "close" );
+      }
     }
   });
 

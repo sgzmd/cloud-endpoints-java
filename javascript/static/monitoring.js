@@ -151,7 +151,8 @@ var rebuildTabBar = function (resp, reload) {
       );
 
       $("div#tabs ul").append(
-          "<li><a href='#tab" + num_tabs + "'>" + room.name + "</a></li>"
+          "<li><a href='#tab" + num_tabs + "'>" + room.name + "</a>" +
+              "<a href=\"#\" onclick='deleteRoom(" + room['id'] + ");'>x</a></li>"
       );
     }
 
@@ -195,8 +196,8 @@ var reloadAllData = function(reload) {
  * Called by Google JS client upon finishing to load.
  */
 function init() {
-//  var ROOT = 'https://cloud-endpoints-example.appspot.com/_ah/api';
-  var ROOT = 'http://localhost:8888/_ah/api';
+  var ROOT = 'https://cloud-endpoints-example.appspot.com/_ah/api';
+//  var ROOT = 'http://localhost:8888/_ah/api';
   gapi.client.load('monitoring', 'v1', reloadAllData, ROOT);
 
   if (ROOT.indexOf("localhost") > 0) {
