@@ -1,12 +1,23 @@
-/**
- * Created with IntelliJ IDEA.
- * User: kirillov
- * Date: 06/06/2013
- * Time: 21:50
- * To change this template use File | Settings | File Templates.
+/*
+ * Copyright [2013] [Roman "sgzmd" Kirillov]
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 
-function updateTips(t) {
+/**
+ * Helper function which updates error messages in forms.
+ */
+var updateTips = function(t) {
   var tips = $('#validateTips');
   tips.text(t).addClass("ui-state-highlight");
   setTimeout(function () {
@@ -14,7 +25,10 @@ function updateTips(t) {
   }, 500);
 }
 
-function checkLength(o, n, min, max) {
+/**
+ * Helper function to validate the length of the field and set an error state if applicable.
+ */
+var checkLength = function (o, n, min, max) {
   if (o.val().length > max || o.val().length < min) {
     o.addClass("ui-state-error");
     updateTips("Length of " + n + " must be between " +
@@ -25,13 +39,22 @@ function checkLength(o, n, min, max) {
   }
 }
 
+/**
+ * Starts delete room flow
+ * @param roomId An ID of the Room to be deleted
+ */
 var deleteRoom = function(roomId) {
-  console.log(roomId);
+  console.log("Requesting room to be deleted", roomId);
 
   $("#dialog-confirm").data('roomId', roomId);
   $("#dialog-confirm").dialog("open");
 }
 
+/**
+ * Adds a room with a specified name
+ *
+ * @param name A name of the newly created Room.
+ */
 var addRoom = function(name) {
   var room = {
     'name': name
@@ -54,17 +77,31 @@ var addRoom = function(name) {
   });
 };
 
+/**
+ * Starts add sensor UI flow
+ * @param roomId Room ID the sensor will be added to
+ */
 var addSensorDialog = function(roomId) {
   $("#create-sensor-form").data('roomId', roomId);
   $("#create-sensor-form").dialog("open");
 };
 
+/**
+ * Adds a sensor into a specified room
+ *
+ * @param sensor Sensor object
+ * @param roomId An ID of the Room sensor to be added to
+ */
 var addSensor = function(sensor, roomId) {
   console.log("Will be adding sensor to room " + roomId);
 
+  // Note, that next line is an only way I am aware at the moment of
+  // writing which allows to combine named parameters in API
+  // (such as those specified using @Named("name") annotation
+  // and a request body which is normally sent as REST request POST body.
   sensor['room'] = roomId;
 
-  console.log(sensor);
+  console.log("Final object sending to the API", sensor);
 
   gapi.client.monitoring.addSensor(sensor).execute(function(resp){
     if (resp) {
@@ -75,6 +112,9 @@ var addSensor = function(sensor, roomId) {
   });
 };
 
+/**
+ * Initialises all forms, dialogs and buttons
+ */
 var initUI = function () {
   var name = $("#name");
 
@@ -110,10 +150,6 @@ var initUI = function () {
       name.val("").removeClass("ui-state-error");
     }
   });
-
-//  $("#create-sensor").button().click(function() {
-//    $("#create-sensor-form").dialog("open");
-//  });
 
   $("#create-sensor-form").dialog({
     autoOpen: false,
