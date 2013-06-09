@@ -8,16 +8,12 @@ import javax.annotation.Nullable;
 import javax.inject.Named;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
-import javax.jdo.Transaction;
 
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.response.NotFoundException;
-import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.labs.repackaged.com.google.common.annotations.VisibleForTesting;
-import com.google.appengine.labs.repackaged.com.google.common.base.Predicate;
-import com.google.appengine.labs.repackaged.com.google.common.base.Throwables;
 import com.google.appengine.labs.repackaged.com.google.common.collect.Iterables;
 import com.sgzmd.examples.utils.Clock;
 import com.sgzmd.examples.utils.SystemClock;
