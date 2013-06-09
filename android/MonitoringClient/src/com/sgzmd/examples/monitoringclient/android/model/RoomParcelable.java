@@ -1,5 +1,7 @@
 package com.sgzmd.examples.monitoringclient.android.model;
 
+import java.util.Arrays;
+
 import com.google.api.services.monitoring.model.Room;
 
 import android.os.Parcel;
@@ -65,5 +67,11 @@ public class RoomParcelable implements Parcelable {
     } else {
       return new SensorParcelable[0];
     }
+  }
+  
+  @Override
+  public String toString() {
+    return "RoomParcelable [name=" + name + ", sensors="
+        + Arrays.toString(sensors) + "]";
   }
 }

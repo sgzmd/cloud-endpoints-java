@@ -170,6 +170,8 @@ public class MainActivity extends FragmentActivity implements
       
       room = getArguments().getParcelable(ROOM);
       
+      Log.i("DummySectionFragment", room.toString());
+
       LinearLayout layout = new LinearLayout(getActivity());
       layout.setGravity(Gravity.TOP);
 
@@ -183,18 +185,20 @@ public class MainActivity extends FragmentActivity implements
     }
   }
 
-  public void onTabReselected(Tab tab, FragmentTransaction ft) {
-    // TODO Auto-generated method stub
-
-  }
-
+  @Override
   public void onTabSelected(Tab tab, FragmentTransaction ft) {
-    // TODO Auto-generated method stub
-
+    this.mViewPager.setCurrentItem(tab.getPosition());
   }
 
+  @Override
   public void onTabUnselected(Tab tab, FragmentTransaction ft) {
     // TODO Auto-generated method stub
+    
+  }
 
+  @Override
+  public void onTabReselected(Tab tab, FragmentTransaction ft) {
+    // TODO Auto-generated method stub
+    
   }
 }

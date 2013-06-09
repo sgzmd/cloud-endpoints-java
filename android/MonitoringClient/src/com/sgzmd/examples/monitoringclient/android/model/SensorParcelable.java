@@ -21,13 +21,19 @@ public class SensorParcelable implements Parcelable {
     SensorParcelable parcelable = new SensorParcelable();
     
     parcelable.active = sensor.getActive();
-    parcelable.lastActiveMillis = sensor.getLastActive().getMillis();
-    parcelable.name = sensor.getNetworkId();
+    parcelable.lastActiveMillis = sensor.getLastActive();
+    parcelable.name = sensor.getSensorName();
     parcelable.networkId = sensor.getNetworkId();
     
     return parcelable;
   }
   
+  @Override
+  public String toString() {
+    return "SensorParcelable [networkId=" + networkId + ", name=" + name
+        + ", active=" + active + "]";
+  }
+
   public static final Parcelable.Creator<SensorParcelable> CREATOR = new Parcelable.Creator<SensorParcelable>() {
     public SensorParcelable createFromParcel(Parcel in) {
       return new SensorParcelable(in);
