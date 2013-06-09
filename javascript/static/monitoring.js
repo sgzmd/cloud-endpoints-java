@@ -37,7 +37,11 @@ var CHECKBOX_TEMPLATE = '<div> \
     </label> &mdash; <small title="Last time this sensor was triggered">{5}</small>\
   </div>';
 
-
+/**
+ * Updates last-active-timestamp of a given.
+ *
+ * @param networkId
+ */
 var triggerSensor = function(networkId) {
   gapi.client.monitoring
       .logSensorUpdate({'network_id': networkId})
@@ -46,15 +50,25 @@ var triggerSensor = function(networkId) {
       });
 }
 
+/**
+ * Sends an arm/disarm request to the API
+ * @param request Request object to be sent
+ */
 var sendArmRequest = function(request) {
   console.log("Sending Arm request", request);
   gapi.client.monitoring.arm(request).execute(function (resp) {
-    console.log(resp);
-    console.log("reloading the data...");
+    console.log("Reloading the data", resp);
     rebuildTabBar(resp, true);
   });
 }
 
+/**
+ * Changes individual sensor state
+ *
+ * @param sensorId ID of the sensor to toggle
+ * @param roomId ID of the room sensor is installed in
+ * @param cb HTML object of the checkbox
+ */
 var handleCheckbox = function (sensorId, roomId, cb) {
   // if sensor was active, cb.value will be "on"
   // before the callback has finished.
@@ -67,6 +81,12 @@ var handleCheckbox = function (sensorId, roomId, cb) {
   sendArmRequest(request);
 }
 
+/**
+ * Toggles the monitoring state of the whole room
+ *
+ * @param event JQuery event
+ * @param state true or false
+ */
 var armOrDisarmRoom = function(event, state) {
   var roomId = event.currentTarget.value;
   var request = {
@@ -78,14 +98,7 @@ var armOrDisarmRoom = function(event, state) {
 }
 
 /**
- * It's ugly as a sin, but it works. It will produce something like this:
- *
- * <div>
- *  <input onclick="handleCheckbox(this, "DddEeeFff");"
- *         type="checkbox"
- *         id="sensor_0_DddEeeFff">
- *      <label for="sensor_0_DddEeeFff">DddEeeFff</label>
- * </div>
+ * It's ugly as a sin, but it works. Nomen est omen, too.
  */
 var makeCheckBox = function (roomId, name, sensorId, checked, networkId, lastUpdated) {
   return CHECKBOX_TEMPLATE.format(
