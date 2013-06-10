@@ -57,7 +57,8 @@ public class Monitoring extends com.google.api.client.googleapis.services.json.A
    *
    * @since 1.7
    */
-  public static final String DEFAULT_ROOT_URL = "https://cloud-endpoints-example.appspot.com/_ah/api/";
+//  public static final String DEFAULT_ROOT_URL = "https://cloud-endpoints-example.appspot.com/_ah/api/";
+  public static final String DEFAULT_ROOT_URL = "http://10.0.2.2:8888/_ah/api/";
 
   /**
    * The default encoded service path of the service. This is determined when the library is

@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -28,6 +29,17 @@ import com.sgzmd.examples.monitoringclient.android.model.RoomParcelable;
 
 public class MainActivity extends FragmentActivity implements
     ActionBar.TabListener {
+
+  @Override
+  public boolean onMenuItemSelected(int featureId, MenuItem item) {
+    switch (item.getItemId()) {
+    case R.id.refresh:
+      new ApiAsyncTask().execute();
+      return true;
+    default:
+      return super.onMenuItemSelected(featureId, item);
+    }
+  }
 
   /**
    * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -52,19 +64,7 @@ public class MainActivity extends FragmentActivity implements
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    new AsyncTask<Void, Void, List<Room>>() {
-      @Override
-      protected List<Room> doInBackground(Void... params) {
-        Log.i("MonitoringClient", "Trying to connect to "
-            + Monitoring.DEFAULT_BASE_URL);
-        return dataProvider.getRooms();
-      }
-
-      @Override
-      protected void onPostExecute(List<Room> result) {
-        initialisePager(result);
-      }
-    }.execute();
+    new ApiAsyncTask().execute();
 
     setContentView(R.layout.activity_main);
   }
@@ -77,7 +77,7 @@ public class MainActivity extends FragmentActivity implements
 
     mSectionsPagerAdapter = new SectionsPagerAdapter(
         getSupportFragmentManager(), rooms);
-
+    
     // Set up the action bar.
     final ActionBar actionBar = getActionBar();
     actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -85,6 +85,8 @@ public class MainActivity extends FragmentActivity implements
     // Set up the ViewPager with the sections adapter.
     mViewPager = (ViewPager) findViewById(R.id.pager);
     mViewPager.setAdapter(mSectionsPagerAdapter);
+    
+    mViewPager.refreshDrawableState();
 
     // When swiping between different sections, select the corresponding
     // tab.
@@ -100,6 +102,7 @@ public class MainActivity extends FragmentActivity implements
           }
         });
 
+    actionBar.removeAllTabs();
     // For each of the sections in the app, add a tab to the action bar.
     for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
       actionBar.addTab(actionBar.newTab()
@@ -111,6 +114,20 @@ public class MainActivity extends FragmentActivity implements
   public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.activity_main, menu);
     return true;
+  }
+
+  private final class ApiAsyncTask extends AsyncTask<Void, Void, List<Room>> {
+    @Override
+    protected List<Room> doInBackground(Void... params) {
+      Log.i("MonitoringClient", "Trying to connect to "
+          + Monitoring.DEFAULT_BASE_URL);
+      return dataProvider.getRooms();
+    }
+
+    @Override
+    protected void onPostExecute(List<Room> result) {
+      initialisePager(result);
+    }
   }
 
   /**
