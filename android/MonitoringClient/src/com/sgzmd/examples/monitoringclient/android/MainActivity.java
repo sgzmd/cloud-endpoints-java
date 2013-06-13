@@ -49,7 +49,7 @@ public class MainActivity extends FragmentActivity implements
    * it may be best to switch to a
    * {@link android.support.v4.app.FragmentStatePagerAdapter}.
    */
-  SectionsPagerAdapter mSectionsPagerAdapter;
+  SectionsPagerAdapter mSectionsPagerAdapter = null;
 
   final MonitoringDataProvider dataProvider = new NetworkMonitoringProvider();
 
@@ -75,9 +75,16 @@ public class MainActivity extends FragmentActivity implements
     // of the app.
     this.rooms = rooms;
 
-    mSectionsPagerAdapter = new SectionsPagerAdapter(
-        getSupportFragmentManager(), rooms);
-    
+    if (mSectionsPagerAdapter == null) {
+      mSectionsPagerAdapter = new SectionsPagerAdapter(
+          getSupportFragmentManager(), rooms);
+    } else {
+      mSectionsPagerAdapter.startUpdate(mViewPager);
+      mSectionsPagerAdapter.update(rooms, mViewPager);
+      mSectionsPagerAdapter.finishUpdate(mViewPager);
+      mSectionsPagerAdapter.notifyDataSetChanged();
+    }
+
     // Set up the action bar.
     final ActionBar actionBar = getActionBar();
     actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -85,15 +92,17 @@ public class MainActivity extends FragmentActivity implements
     // Set up the ViewPager with the sections adapter.
     mViewPager = (ViewPager) findViewById(R.id.pager);
     mViewPager.setAdapter(mSectionsPagerAdapter);
-    
-    mViewPager.refreshDrawableState();
 
-    // When swiping between different sections, select the corresponding
-    // tab.
-    // We can also use ActionBar.Tab#select() to do this if we have a
-    // reference
-    // to the
-    // Tab.
+    mViewPager.refreshDrawableState();
+    
+    if (mViewPager.getChildCount() > 0) {
+      actionBar.removeAllTabs();
+      mViewPager.removeAllViews();
+    }
+
+    // When swiping between different sections, select the corresponding tab. We
+    // can also use ActionBar.Tab#select() to do this if we have a reference to
+    // the Tab.
     mViewPager
         .setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
           @Override
@@ -102,7 +111,6 @@ public class MainActivity extends FragmentActivity implements
           }
         });
 
-    actionBar.removeAllTabs();
     // For each of the sections in the app, add a tab to the action bar.
     for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
       actionBar.addTab(actionBar.newTab()
@@ -126,6 +134,9 @@ public class MainActivity extends FragmentActivity implements
 
     @Override
     protected void onPostExecute(List<Room> result) {
+      for (Room room : result) {
+        Log.d(ApiAsyncTask.class.getSimpleName(), room.toString());
+      }
       initialisePager(result);
     }
   }
@@ -142,19 +153,32 @@ public class MainActivity extends FragmentActivity implements
 
       this.rooms = rooms;
     }
+    
+    public void update(List<Room> rooms, ViewGroup group) {
+      this.rooms.clear();
+      this.rooms.addAll(rooms);
+    }
+    
+    @Override
+    public int getItemPosition(Object object) {
+      return POSITION_NONE;
+    }
 
     @Override
     public Fragment getItem(int i) {
       Preconditions.checkArgument(i < rooms.size());
 
+      Log.i(this.getClass().getSimpleName(), String.format("getItem(%d)", i));
+
       Fragment fragment = new DummySectionFragment();
       Bundle args = new Bundle();
-      
+
       args.putInt(DummySectionFragment.ARG_SECTION_NUMBER, i + 1);
-      args.putParcelable(DummySectionFragment.ROOM, RoomParcelable.fromRoom(rooms.get(i)));
-      
+      args.putParcelable(DummySectionFragment.ROOM,
+          RoomParcelable.fromRoom(rooms.get(i)));
+
       fragment.setArguments(args);
-      
+
       return fragment;
     }
 
@@ -184,18 +208,19 @@ public class MainActivity extends FragmentActivity implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
         Bundle savedInstanceState) {
-      
+
       room = getArguments().getParcelable(ROOM);
-      
+
       Log.i("DummySectionFragment", room.toString());
 
       LinearLayout layout = new LinearLayout(getActivity());
       layout.setGravity(Gravity.TOP);
 
-      SensorArrayAdapter adapter = new SensorArrayAdapter(getActivity(), room.getSensors());
+      SensorArrayAdapter adapter = new SensorArrayAdapter(getActivity(),
+          room.getSensors());
       ListView listView = new ListView(getActivity());
       listView.setAdapter(adapter);
-      
+
       layout.addView(listView);
 
       return layout;
@@ -210,12 +235,12 @@ public class MainActivity extends FragmentActivity implements
   @Override
   public void onTabUnselected(Tab tab, FragmentTransaction ft) {
     // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void onTabReselected(Tab tab, FragmentTransaction ft) {
     // TODO Auto-generated method stub
-    
+
   }
 }
