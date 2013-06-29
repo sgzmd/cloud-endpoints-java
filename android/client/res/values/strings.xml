@@ -3,5 +3,6 @@
 
     <string name="app_name">MonitoringClientAndroid</string>
     <string name="title_room_detail">Room Detail</string>
+    <string name="authentication_failed">Authentication failed or was cancelled</string>
 
 </resources>

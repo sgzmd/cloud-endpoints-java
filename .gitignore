@@ -14,3 +14,4 @@ android/MonitoringClient/bin/*
 api-backend/cloud-endpoints-java/cloud-endpoints-java.iml
 
 *.pyc
+old-client/

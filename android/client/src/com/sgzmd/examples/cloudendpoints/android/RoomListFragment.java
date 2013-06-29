@@ -62,6 +62,7 @@ public class RoomListFragment extends ListFragment {
 
   private RoomArrayAdapter adapter;
 
+
   /**
    * A dummy implementation of the {@link Callbacks} interface that does
    * nothing. Used only when this fragment is not attached to an activity.
@@ -87,9 +88,7 @@ public class RoomListFragment extends ListFragment {
     new AsyncTask<Void, Void, List<Room>>() {
       @Override
       protected void onPostExecute(List<Room> result) {
-        adapter = new RoomArrayAdapter(
-            RoomListFragment.this.getActivity(),
-            0,
+        adapter = new RoomArrayAdapter(RoomListFragment.this.getActivity(), 0,
             MonitoringProvider.getRoomParcelables(result));
         RoomListFragment.this.setListAdapter(RoomListFragment.this.adapter);
       }
@@ -100,6 +99,7 @@ public class RoomListFragment extends ListFragment {
           Log.d(TAG, "Getting data from the API...");
           return MonitoringProvider.get().listRooms().execute().getItems();
         } catch (IOException e) {
+          Log.e(TAG, "IOException occurred when getting list of rooms", e);
           return Lists.newArrayList();
         }
       }
@@ -125,7 +125,8 @@ public class RoomListFragment extends ListFragment {
 
     // Activities containing this fragment must implement its callbacks.
     if (!(activity instanceof Callbacks)) {
-      throw new IllegalStateException("Activity must implement fragment's callbacks.");
+      throw new IllegalStateException(
+          "Activity must implement fragment's callbacks.");
     }
 
     mCallbacks = (Callbacks) activity;
@@ -140,7 +141,8 @@ public class RoomListFragment extends ListFragment {
   }
 
   @Override
-  public void onListItemClick(ListView listView, View view, int position, long id) {
+  public void onListItemClick(ListView listView, View view, int position,
+      long id) {
     Log.i(this.getClass().getSimpleName(),
         String.format("onListItemClick: position=%d, id=%d", position, id));
     super.onListItemClick(listView, view, position, id);
@@ -164,9 +166,9 @@ public class RoomListFragment extends ListFragment {
   public void setActivateOnItemClick(boolean activateOnItemClick) {
     // When setting CHOICE_MODE_SINGLE, ListView will automatically
     // give items the 'activated' state when touched.
-    getListView().setChoiceMode(activateOnItemClick
-        ? ListView.CHOICE_MODE_SINGLE
-        : ListView.CHOICE_MODE_NONE);
+    getListView().setChoiceMode(
+        activateOnItemClick ? ListView.CHOICE_MODE_SINGLE
+            : ListView.CHOICE_MODE_NONE);
   }
 
   private void setActivatedPosition(int position) {
@@ -188,33 +190,34 @@ public class RoomListFragment extends ListFragment {
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
 
-      case R.id.options_menu_refresh:
+    case R.id.options_menu_refresh:
 
-        new AsyncTask<Void, Void, List<Room>>() {
-          @Override
-          protected void onPostExecute(List<Room> result) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-              for (Room room : result) {
-                try {
-                  Log.d(TAG, room.toPrettyString());
-                } catch (IOException e) {
-                  // should never happen
-                  Throwables.propagate(e);
-                }
+      new AsyncTask<Void, Void, List<Room>>() {
+        @Override
+        protected void onPostExecute(List<Room> result) {
+          if (Log.isLoggable(TAG, Log.DEBUG)) {
+            for (Room room : result) {
+              try {
+                Log.d(TAG, room.toPrettyString());
+              } catch (IOException e) {
+                // should never happen
+                Throwables.propagate(e);
               }
             }
-            adapter.refreshBackingList(MonitoringProvider.getRoomParcelables(result));
           }
+          adapter.refreshBackingList(MonitoringProvider
+              .getRoomParcelables(result));
+        }
 
-          @Override
-          protected List<Room> doInBackground(Void... params) {
-            try {
-              return MonitoringProvider.get().listRooms().execute().getItems();
-            } catch (IOException e) {
-              return Lists.newArrayList();
-            }
+        @Override
+        protected List<Room> doInBackground(Void... params) {
+          try {
+            return MonitoringProvider.get().listRooms().execute().getItems();
+          } catch (IOException e) {
+            return Lists.newArrayList();
           }
-        }.execute();
+        }
+      }.execute();
     }
 
     return super.onOptionsItemSelected(item);
