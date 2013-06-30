@@ -40,7 +40,6 @@ public class RoomListActivity extends FragmentActivity implements
   static final String PREF_ACCOUNT_NAME = "account-name";
   
   static final int REQUEST_ACCOUNT_PICKER = 2;
-  static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
 
   /**
    * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -160,6 +159,9 @@ public class RoomListActivity extends FragmentActivity implements
     checkGooglePlayServicesAvailable();
   }
   
+  /**
+   * Pops up Account Picker dialog to select a Google account to authenticate with
+   */
   protected void chooseAccount() {
     Log.i(TAG, "chooseAccount");
     startActivityForResult(
@@ -167,6 +169,9 @@ public class RoomListActivity extends FragmentActivity implements
         REQUEST_ACCOUNT_PICKER);
   }
 
+  /**
+   * Stores selected account name (e.g. username@gmail.com) to shared preferences.
+   */
   private void setAccountName(String accountName) {
     SharedPreferences.Editor editor = settings.edit();
     editor.putString(PREF_ACCOUNT_NAME, accountName);

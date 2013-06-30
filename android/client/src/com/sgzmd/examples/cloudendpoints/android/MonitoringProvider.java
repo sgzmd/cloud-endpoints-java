@@ -24,19 +24,19 @@ public class MonitoringProvider {
 
   public static void initialise(GoogleAccountCredential credential) {
     Log.i(TAG, "initialise");
-    if (null == MONITORING) {
-      MONITORING = new Monitoring.Builder(AndroidHttp.newCompatibleTransport(),
-          new GsonFactory(), credential).setApplicationName(
-          "MonitoringAndroidClient").build();
-    } else {
-      throw new IllegalStateException("Monitoring was already initialised");
-    }
+    MONITORING = new Monitoring.Builder(AndroidHttp.newCompatibleTransport(),
+        new GsonFactory(), credential).setApplicationName(
+        "MonitoringAndroidClient").build();
+  }
+
+  public static boolean isInitialised() {
+    return MONITORING != null;
   }
 
   public static Monitoring get() {
     try {
       Log.i(TAG, "Monitoring.get()");
-      
+
       // blocking for service object to be initialised
       while (MONITORING == null) {
         Thread.sleep(1000);

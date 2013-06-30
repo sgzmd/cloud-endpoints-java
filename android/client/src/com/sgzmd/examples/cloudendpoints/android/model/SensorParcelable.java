@@ -106,7 +106,6 @@ public class SensorParcelable implements Parcelable {
   }
 
   public Long getId() {
-    // TODO Auto-generated method stub
-    return null;
+    return id;
   }
 }

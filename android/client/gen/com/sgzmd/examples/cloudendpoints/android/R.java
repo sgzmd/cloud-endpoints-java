@@ -18,8 +18,8 @@ public final class R {
         public static final int room_detail_container=0x7f070000;
         public static final int room_list=0x7f070001;
         public static final int room_list_item=0x7f070002;
-        public static final int room_list_item_enabled=0x7f070005;
-        public static final int room_list_item_last_active=0x7f070004;
+        public static final int room_list_item_enabled=0x7f070004;
+        public static final int room_list_item_last_active=0x7f070005;
         public static final int room_list_item_name=0x7f070003;
         public static final int sensor_list_item_enabled=0x7f070006;
         public static final int sensor_list_item_last_active=0x7f070007;
