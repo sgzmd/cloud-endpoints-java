@@ -229,6 +229,7 @@ public class ApiBackendAuth {
       @Named("state") Boolean state,
       User user) throws OAuthRequestException {
     checkAuth(user);
+    log("Arm: {0}, {1}, {2}", roomId, sensorId, state);
     if (sensorId != null) {
       resetSensor(sensorId, roomId, state);
     } else if (roomId != null) {

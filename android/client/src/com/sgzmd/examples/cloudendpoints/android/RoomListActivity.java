@@ -54,7 +54,7 @@ public class RoomListActivity extends FragmentActivity implements
 
     // Inside your Activity class onCreate method
     this.settings = getSharedPreferences(TAG, 0);
-    this.credential = GoogleAccountCredential.usingAudience(this, ClientCredentials.AUDIENCE);
+    this.credential = GoogleAccountCredential.usingAudience(getApplicationContext(), ClientCredentials.AUDIENCE);
     String account = settings.getString(PREF_ACCOUNT_NAME, null);
     if (account != null) {
       setAccountName(account);
@@ -152,9 +152,14 @@ public class RoomListActivity extends FragmentActivity implements
     }
   }
 
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+  }  
   
   @Override
   protected void onResume() {
+    Log.i(TAG, "onResume");
     super.onResume();
     checkGooglePlayServicesAvailable();
   }

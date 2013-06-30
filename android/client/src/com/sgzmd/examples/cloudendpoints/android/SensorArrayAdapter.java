@@ -42,7 +42,8 @@ public class SensorArrayAdapter extends ArrayAdapter<SensorParcelable> {
     View view = inflater.inflate(R.layout.sensor_list_item, parent, false);
 
     CheckBox enabled = (CheckBox) view.findViewById(R.id.sensor_list_item_enabled);
-
+    enabled.setChecked(sensor.getActive());
+    
     enabled.setOnCheckedChangeListener(new OnCheckedChangeListener() {
       @Override
       public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked) {
@@ -65,8 +66,6 @@ public class SensorArrayAdapter extends ArrayAdapter<SensorParcelable> {
         }.execute();
       }
     });
-
-    enabled.setChecked(sensor.getActive());
 
     TextView lastActive = (TextView) view.findViewById(R.id.sensor_list_item_last_active);
 

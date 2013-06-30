@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.util.Throwables;
 import com.google.api.services.monitoring.model.Room;
 import com.google.common.collect.Lists;
@@ -199,6 +200,8 @@ public class RoomListFragment extends ListFragment {
             for (Room room : result) {
               try {
                 Log.d(TAG, room.toPrettyString());
+              } catch (UserRecoverableAuthIOException ue) {
+                RoomListFragment.this.getActivity().startActivityForResult(ue.getIntent(), 2);
               } catch (IOException e) {
                 // should never happen
                 Throwables.propagate(e);
